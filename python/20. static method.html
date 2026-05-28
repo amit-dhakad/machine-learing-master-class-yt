@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static Methods — Python OOP Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #06b6d4; /* Static Method Cyan/Teal */
+      --v2c: #f59e0b; /* Class Method Orange */
+      --v3c: #10b981; /* Success Green */
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 700px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(6, 182, 212, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 30px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(6, 182, 212, 0.05); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin-bottom: 40px;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; }
+    .kw { color: #c084fc; } .fn { color: #60a5fa; } .st { color: #86efac; } .nm { color: #fb923c; } .cm { color: #475569; font-style: italic; } .bi { color: #38bdf8; } .dec { color: #f472b6; } .var_ { color: #e2e8f0; } .op { color: #94a3b8; }
+
+    .table-container { overflow-x: auto; margin: 30px 0; border: 1px solid var(--border); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+    th { background: rgba(255,255,255,0.02); color: #fff; padding: 16px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.01); }
+
+    .rule-box {
+        background: rgba(59, 130, 246, 0.05); border: 1px dashed var(--v1c);
+        padding: 20px; border-radius: 12px; margin: 20px 0;
+    }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; }
+    
+    ul { margin-left: 20px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--v1c); }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 05 · OOP Advanced</span>
+    <h1>Encapsulating Logic with <span class="highlight">Static Methods</span></h1>
+    <p class="desc">Learn how to declare isolated utilities, clean up your class structure, and explore real-world cases where static methods outperform class methods.</p>
+  </header>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is a Static Method?</h2>
+    <p class="text-block">
+      A <strong>Static Method</strong> is a method defined inside a class that behaves exactly like a regular function outside the class. It is completely isolated: it does <strong>NOT</strong> receive any implicit first argument (neither `self` for an instance nor `cls` for the class definition).
+    </p>
+    <p class="text-block">
+      We declare a static method using the <strong><code>@staticmethod</code></strong> decorator. Since static methods don't read or modify class state or instance state, they are used to group utility and helper functions logically inside the namespace of a class.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">🧮 Real World Case: Factory Calculator Tool</span>
+      <div class="rl-text">
+        Imagine a massive factory that builds cars. An <em>instance method</em> drives a single produced car. A <em>class method</em> schedules factory maintenance. A <em>static method</em> is a simple scientific calculator sitting on a desk in the factory. It calculates numbers (e.g., <code>15 * 8</code>) perfectly, but it doesn't need to know anything about the cars or the factory to do its math!
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> Declaring a Static Method</h2>
+    <p class="text-block">
+      Let's look at how to declare a static method. We use it to perform tasks that are self-contained but naturally belong under the class namespace conceptually.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">basic_static.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Validator</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">username</span>):
+        <span class="var_">self</span>.username <span class="op">=</span> <span class="var_">username</span>
+
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">is_valid_email</span>(<span class="var_">email</span>):
+        <span class="cm"># Self-contained logic: No reference to cls or self!</span>
+        <span class="kw">return</span> <span class="st">"@"</span> <span class="kw">in</span> <span class="var_">email</span> <span class="kw">and</span> <span class="var_">email</span>.endswith(<span class="st">".com"</span>)
+
+<span class="cm"># Call static method without instantiating the class!</span>
+<span class="var_">result</span> <span class="op">=</span> <span class="fn">Validator</span>.is_valid_email(<span class="st">"amit@gmail.com"</span>)
+<span class="bi">print</span>(<span class="var_">result</span>)  <span class="cm"># Output: True</span>
+
+<span class="cm"># We CAN call it on an instance as well:</span>
+<span class="var_">val</span> <span class="op">=</span> <span class="fn">Validator</span>(<span class="st">"amit_dhakad"</span>)
+<span class="bi">print</span>(<span class="var_">val</span>.is_valid_email(<span class="st">"wrong_email"</span>))  <span class="cm"># Output: False</span></pre>
+    </div>
+
+    <div class="rule-box" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+        <strong style="color: #ef4444;">⚠️ Core Rule:</strong> Never include <code>self</code> or <code>cls</code> in the parameter list of a static method. If you try to access <code>self.username</code> inside a static method, Python will throw a <code>NameError</code> or <code>AttributeError</code> because the method does not receive a reference to any object.
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Why use @staticmethod?</h2>
+    <p class="text-block">
+      You might wonder: <em>"Why not just write a global function outside the class?"</em> There are several reasons why static methods are essential in production code:
+    </p>
+    <ul>
+      <li><strong>Namespace Organization:</strong> Keeps helper functions grouped logically inside the class they assist. A string parser for users should reside inside the `User` class namespace.</li>
+      <li><strong>Readability & Intent:</strong> Using `@staticmethod` explicitly tells anyone reading the code: <em>"This method does not touch the state of this class or its instances."</em></li>
+      <li><strong>Inheritance Safety:</strong> Static methods can be overridden by subclasses if needed, which is impossible with modules/global functions.</li>
+    </ul>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Real-World Case Study: Encryption & Security Utilities</h2>
+    <p class="text-block">
+      In massive corporate backends, static methods are perfect for formatting, computing hashes, or generating cryptographically secure secrets that are logically related to a user class, but entirely mathematical.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">security_utils.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">hashlib</span>
+<span class="kw">import</span> <span class="fn">secrets</span>
+
+<span class="kw">class</span> <span class="fn">SecurityManager</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">user_id</span>):
+        <span class="var_">self</span>.user_id <span class="op">=</span> <span class="var_">user_id</span>
+        
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">generate_token</span>(<span class="var_">length</span><span class="op">=</span><span class="nm">32</span>):
+        <span class="cm"># Self-contained: Generates a secure random hexadecimal string</span>
+        <span class="kw">return</span> <span class="fn">secrets</span>.token_hex(<span class="var_">length</span>)
+
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">hash_password</span>(<span class="var_">password</span>, <span class="var_">salt</span>):
+        <span class="cm"># Self-contained: Encrypts a password cleanly</span>
+        <span class="var_">salted_pwd</span> <span class="op">=</span> <span class="var_">password</span> <span class="op">+</span> <span class="var_">salt</span>
+        <span class="kw">return</span> <span class="fn">hashlib</span>.sha256(<span class="var_">salted_pwd</span>.encode(<span class="st">'utf-8'</span>)).hexdigest()
+
+<span class="cm"># 1. Generating a secure user auth token</span>
+<span class="var_">new_token</span> <span class="op">=</span> <span class="fn">SecurityManager</span>.generate_token()
+<span class="bi">print</span>(<span class="st">f"Secure Token: {new_token}"</span>)
+
+<span class="cm"># 2. Hashing a password dynamically</span>
+<span class="var_">salt</span> <span class="op">=</span> <span class="st">"apex_secret_salt"</span>
+<span class="var_">hashed</span> <span class="op">=</span> <span class="fn">SecurityManager</span>.hash_password(<span class="st">"SuperSecurePassword123"</span>, <span class="var_">salt</span>)
+<span class="bi">print</span>(<span class="st">f"Hashed Database Entry: {hashed}"</span>)</pre>
+    </div>
+  </div>
+
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Under the Hood: The Descriptor Protocol</h2>
+    <p class="text-block">
+      To truly master Python, you must understand how Python implements <code>@staticmethod</code> under the hood using the <strong>Descriptor Protocol</strong>.
+    </p>
+    <p class="text-block">
+      In Python, functions are descriptor objects that implement the <code>__get__</code> method. Normally, when you access a method on an instance (e.g., <code>user.get_details()</code>), Python's descriptor protocol automatically calls <code>__get__</code>, binding the instance as the first argument (returning a <strong>bound method</strong>).
+    </p>
+    <p class="text-block">
+      The <code>@staticmethod</code> decorator wraps the function in a special descriptor whose <code>__get__</code> method returns the underlying function <strong>unbound</strong> and unchanged, whether accessed from the class or from an instance.
+    </p>
+
+    <div class="rule-box" style="border-color: var(--v1c); background: rgba(6, 182, 212, 0.02);">
+        <strong>🧠 Standard Python Equivalent:</strong>
+        <pre style="padding: 10px 0; font-size: 13px;"><span class="kw">class</span> <span class="fn">StaticMethodWrapper</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">func</span>):
+        <span class="var_">self</span>.func <span class="op">=</span> <span class="var_">func</span>
+
+    <span class="kw">def</span> <span class="fn">__get__</span>(<span class="var_">self</span>, <span class="var_">instance</span>, <span class="var_">owner</span>):
+        <span class="kw">return</span> <span class="var_">self</span>.func  <span class="cm"># Returns function directly without binding!</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">06</span> Static Methods in Inheritance</h2>
+    <p class="text-block">
+      Static methods participate fully in Python's object inheritance. Subclasses can inherit them directly or override them. Furthermore, subclasses can use <code>super()</code> to access a parent's static method cleanly.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">static_inheritance.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">BaseLogger</span>:
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">format_message</span>(<span class="var_">msg</span>):
+        <span class="kw">return</span> <span class="st">f"[LOG] {msg}"</span>
+
+<span class="kw">class</span> <span class="fn">WebLogger</span>(<span class="fn">BaseLogger</span>):
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">format_message</span>(<span class="var_">msg</span>):
+        <span class="cm"># Extend the parent's static method using super()</span>
+        <span class="var_">base_msg</span> <span class="op">=</span> <span class="fn">super</span>(<span class="fn">WebLogger</span>, <span class="fn">WebLogger</span>).format_message(<span class="var_">msg</span>)
+        <span class="kw">return</span> <span class="st">f"🖥️ {base_msg}"</span>
+
+<span class="bi">print</span>(<span class="fn">BaseLogger</span>.format_message(<span class="st">"System start"</span>))
+<span class="bi">print</span>(<span class="fn">WebLogger</span>.format_message(<span class="st">"Request received"</span>))
+
+<span class="cm"># Output:</span>
+<span class="cm"># [LOG] System start</span>
+<span class="cm"># 🖥️ [LOG] Request received</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">07</span> Comparative Analysis: Instance vs Class vs Static</h2>
+    <p class="text-block">
+      To master Python OOP architecture, you must understand exactly how these three method types access data and when to deploy them.
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Instance Method (Object Method)</th>
+            <th>Class Method</th>
+            <th>Static Method</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Syntax / Decorator</strong></td>
+            <td>None</td>
+            <td><code>@classmethod</code></td>
+            <td><code>@staticmethod</code></td>
+          </tr>
+          <tr>
+            <td><strong>Implicit First Argument</strong></td>
+            <td><code>self</code> (points to the specific object instance)</td>
+            <td><code>cls</code> (points to the class definition itself)</td>
+            <td>None (takes only explicit arguments)</td>
+          </tr>
+          <tr>
+            <td><strong>Access Scope</strong></td>
+            <td>Can read & modify both <strong>instance variables</strong> and <strong>class variables</strong></td>
+            <td>Can read & modify <strong>class variables</strong>. Cannot access instance variables.</td>
+            <td>Cannot access <strong>instance variables</strong> or <strong>class variables</strong> directly.</td>
+          </tr>
+          <tr>
+            <td><strong>State Alteration</strong></td>
+            <td>Modifies state of a single specific object.</td>
+            <td>Modifies state of the entire class (affects all future instances).</td>
+            <td>Does not alter state at all (pure function behavior).</td>
+          </tr>
+          <tr>
+            <td><strong>Primary Use Case</strong></td>
+            <td>Defining standard object behaviors (e.g. depositing money, updating name).</td>
+            <td>Alternative constructors / factory patterns, global config modification.</td>
+            <td>Self-contained logical utility functions, math tools, sanitization.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-block">
+      Let's implement a single, unified class containing all three method types to demonstrate how Python executes and isolates their scopes.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">unified_comparison.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">CoffeeShop</span>:
+    <span class="var_">brand</span> <span class="op">=</span> <span class="st">"StarBrew"</span>           <span class="cm"># Class Variable</span>
+    <span class="var_">total_coffees_sold</span> <span class="op">=</span> <span class="nm">0</span>      <span class="cm"># Class Variable</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">customer_name</span>, <span class="var_">price</span>):
+        <span class="var_">self</span>.customer_name <span class="op">=</span> <span class="var_">customer_name</span>  <span class="cm"># Instance Variable</span>
+        <span class="var_">self</span>.price <span class="op">=</span> <span class="var_">price</span>                  <span class="cm"># Instance Variable</span>
+
+    <span class="cm"># 1. INSTANCE METHOD: Needs 'self' to access specific customer data</span>
+    <span class="kw">def</span> <span class="fn">serve_customer</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">f"Serving delicious coffee to {self.customer_name} for ${self.price:.2f}"</span>)
+        <span class="cm"># An instance method can also modify class state:</span>
+        <span class="fn">CoffeeShop</span>.total_coffees_sold <span class="op">+=</span> <span class="nm">1</span>
+
+    <span class="cm"># 2. CLASS METHOD: Needs 'cls' to modify global brand details</span>
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">rebrand</span>(<span class="fn">cls</span>, <span class="var_">new_brand_name</span>):
+        <span class="var_">old_name</span> <span class="op">=</span> <span class="fn">cls</span>.brand
+        <span class="fn">cls</span>.brand <span class="op">=</span> <span class="var_">new_brand_name</span>
+        <span class="bi">print</span>(<span class="st">f"☕ Rebranded class from {old_name} to {cls.brand}!"</span>)
+
+    <span class="cm"># 3. STATIC METHOD: Totally self-contained. Calculates tax without referencing shop state</span>
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">calculate_tax</span>(<span class="var_">amount</span>, <span class="var_">tax_rate</span><span class="op">=</span><span class="nm">0.08</span>):
+        <span class="kw">return</span> <span class="var_">amount</span> <span class="op">*</span> <span class="var_">tax_rate</span>
+
+<span class="cm"># --- EXECUTION & TESTING ---</span>
+
+<span class="cm"># A. Static Method call (Fully independent, no instance required!)</span>
+<span class="var_">tax</span> <span class="op">=</span> <span class="fn">CoffeeShop</span>.calculate_tax(<span class="nm">5.00</span>)
+<span class="bi">print</span>(<span class="st">f"Tax on $5.00 purchase: ${tax:.2f}"</span>)  <span class="cm"># Output: $0.40</span>
+
+<span class="cm"># B. Instantiating objects to use Instance Methods</span>
+<span class="var_">c1</span> <span class="op">=</span> <span class="fn">CoffeeShop</span>(<span class="st">"Alice"</span>, <span class="nm">4.50</span>)
+<span class="var_">c2</span> <span class="op">=</span> <span class="fn">CoffeeShop</span>(<span class="st">"Bob"</span>, <span class="nm">6.00</span>)
+
+<span class="var_">c1</span>.serve_customer()  <span class="cm"># Serve Alice</span>
+<span class="var_">c2</span>.serve_customer()  <span class="cm"># Serve Bob</span>
+<span class="bi">print</span>(<span class="st">f"Total Sales Counter: {CoffeeShop.total_coffees_sold}"</span>)  <span class="cm"># Output: 2</span>
+
+<span class="cm"># C. Calling Class Method to update state for all instances</span>
+<span class="fn">CoffeeShop</span>.rebrand(<span class="st">"BrewMaster Elite"</span>)
+<span class="bi">print</span>(<span class="var_">c1</span>.brand)  <span class="cm"># Output: BrewMaster Elite (Reflected instantly!)</span>
+<span class="bi">print</span>(<span class="var_">c2</span>.brand)  <span class="cm"># Output: BrewMaster Elite</span></pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

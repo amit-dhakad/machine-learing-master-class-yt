@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading and Writing Files (JSON, CSV, Binary) — Python Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght=400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --bg2: #0b0f19;
+      --bg3: #111827;
+      --card: #0f172a;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #a78bfa; /* Violet / Lavender */
+      --v2c: #6366f1; /* Deep Indigo Accent */
+      --v3c: #10b981; /* Success Green */
+      --v4c: #f43f5e; /* Warning Red */
+      --text: #f9fafb;
+      --text2: #9ca3af;
+      --text3: #4b5563;
+      --code-bg: #030712;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(167, 139, 250, 0.04) 1.5px, transparent 0);
+      background-size: 30px 30px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1020px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); text-shadow: 0 0 40px rgba(167, 139, 250, 0.2); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 750px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden;
+    }
+    .topic-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: linear-gradient(to bottom, var(--v1c), var(--v2c));
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 24px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(167, 139, 250, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 20px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+    h3 { margin: 30px 0 15px; font-size: 20px; font-weight: 700; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+
+    .analogy-box {
+      background: rgba(167, 139, 250, 0.03); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .warning-box {
+      background: rgba(244, 63, 94, 0.03); border-left: 4px solid var(--v4c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .warning-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v4c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .tip-box {
+      background: rgba(16, 185, 129, 0.03); border-left: 4px solid var(--v3c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .tip-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v3c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin: 30px 0; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; color: #e2e8f0; line-height: 1.6; }
+    
+    /* Code Highlighting Styles */
+    .kw { color: #f472b6; font-weight: 500; } /* keywords */
+    .fn { color: #38bdf8; } /* function/class names */
+    .st { color: #34d399; } /* strings */
+    .nm { color: #fb923c; } /* numbers */
+    .cm { color: #64748b; font-style: italic; } /* comments */
+    .bi { color: #a78bfa; } /* builtins */
+    .dec { color: #fb7185; font-weight: 600; } /* decorators */
+    .var_ { color: #e2e8f0; } /* variables */
+    .op { color: #94a3b8; } /* operators */
+    .self_ { color: #f43f5e; font-style: italic; } /* self */
+
+    .table-container { overflow-x: auto; margin: 35px 0; border: 1px solid var(--border); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+    th { background: rgba(255,255,255,0.02); color: #fff; padding: 16px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.01); }
+
+    ul, ol { margin-left: 24px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 10px; }
+    li strong { color: #fff; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 6px; color: var(--v1c); font-size: 14px; }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; margin-top: 80px; }
+    
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 07 · Advanced I/O</span>
+    <h1>Deep Dive: <span class="highlight">JSON, CSV & Binary Streams</span></h1>
+    <p class="desc">Learn how to read, write, and serialize structured formats and raw bytes, while avoiding the major architectural pitfalls that break file operations in production.</p>
+  </header>
+
+  <!-- SECTION 1 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> JSON: JavaScript Object Notation</h2>
+    <p class="text-block">
+      <strong>JSON</strong> is the undisputed standard for modern data exchange, config files, and API payloads. Python ships with a robust built-in <strong><code>json</code></strong> library to serialize Python dictionaries/lists into JSON strings or write them directly to files.
+    </p>
+    
+    <h3>API Terminology: File Streams vs. Strings</h3>
+    <ul>
+      <li><strong><code>json.dump(data, file_obj)</code></strong>: Serializes data and writes it directly to an open **file stream**. (No "s" = Stream).</li>
+      <li><strong><code>json.dumps(data)</code></strong>: Serializes data to a **String**. (s = String).</li>
+      <li><strong><code>json.load(file_obj)</code></strong>: Parses an open **file stream** containing JSON into a Python data structure.</li>
+      <li><strong><code>json.loads(string)</code></strong>: Parses a raw JSON **String** into a Python data structure.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">json_handling.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">json</span>
+
+<span class="var_">user_profile</span> <span class="op">=</span> {
+    <span class="st">"username"</span>: <span class="st">"dev_mind"</span>,
+    <span class="st">"level"</span>: <span class="nm">42</span>,
+    <span class="st">"permissions"</span>: [<span class="st">"admin"</span>, <span class="st">"developer"</span>],
+    <span class="st">"is_active"</span>: <span class="bi">True</span>,
+    <span class="st">"status"</span>: <span class="st">"Working with files 🚀"</span>
+}
+
+<span class="cm"># 1. WRITING JSON (Serialization)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"profile.json"</span>, <span class="st">"w"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="cm"># 'indent=4' creates clean human-readable spacing.</span>
+    <span class="cm"># 'ensure_ascii=False' allows emojis & native scripts to write raw rather than \u escapes.</span>
+    <span class="fn">json</span>.dump(<span class="var_">user_profile</span>, <span class="var_">f</span>, <span class="var_">indent</span><span class="op">=</span><span class="nm">4</span>, <span class="var_">ensure_ascii</span><span class="op">=</span><span class="bi">False</span>)
+
+<span class="cm"># 2. READING JSON (Deserialization)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"profile.json"</span>, <span class="st">"r"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">loaded_data</span> <span class="op">=</span> <span class="fn">json</span>.load(<span class="var_">f</span>)
+    <span class="bi">print</span>(<span class="st">f"Loaded User: {loaded_data['username']} ({loaded_data['status']})"</span>)</pre>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> CSV: Comma-Separated Values</h2>
+    <p class="text-block">
+      <strong>CSV</strong> is the standard format for tabular data, datasets, and spreadsheets. Python's <strong><code>csv</code></strong> module allows you to read and write rows easily.
+    </p>
+
+    <h3>Standard vs. Dict-Based I/O</h3>
+    <ul>
+      <li><strong>`csv.reader` & `csv.writer`</strong>: Operate on lists of values representing columns. Index-dependent.</li>
+      <li><strong>`csv.DictReader` & `csv.DictWriter`</strong>: Map each row directly to a Python dictionary, using the first row as headers. This is the **industry standard** for clean, readable, and robust data science parsing!</li>
+    </ul>
+
+    <div class="warning-box">
+      <span class="warning-label">🚨 The Windows Blank Line Bug</span>
+      <p class="text-block" style="color:var(--text)">
+        On Windows, Python's <code>csv.writer</code> translates `\n` to `\r\n`, which leads to an extra empty blank line after every single row written to the file.
+        <br>
+        <strong>Always pass <code>newline=""</code> into the <code>open()</code> function</strong> when writing or reading CSV files to prevent this corruption!
+      </p>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">csv_dictionary.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">csv</span>
+
+<span class="var_">employees</span> <span class="op">=</span> [
+    {<span class="st">"name"</span>: <span class="st">"Alice"</span>, <span class="st">"role"</span>: <span class="st">"Engineer"</span>, <span class="st">"salary"</span>: <span class="st">"95000"</span>},
+    {<span class="st">"name"</span>: <span class="st">"Bob"</span>, <span class="st">"role"</span>: <span class="st">"Designer"</span>, <span class="st">"salary"</span>: <span class="st">"82000"</span>},
+    {<span class="st">"name"</span>: <span class="st">"Charlie"</span>, <span class="st">"role"</span>: <span class="st">"Manager"</span>, <span class="st">"salary"</span>: <span class="st">"110000"</span>}
+]
+
+<span class="cm"># 1. WRITING CSV WITH DICTWRITER</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"staff.csv"</span>, <span class="st">"w"</span>, <span class="var_">newline</span><span class="op">=</span><span class="st">""</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">headers</span> <span class="op">=</span> [<span class="st">"name"</span>, <span class="st">"role"</span>, <span class="st">"salary"</span>]
+    <span class="var_">writer</span> <span class="op">=</span> <span class="fn">csv</span>.DictWriter(<span class="var_">f</span>, <span class="var_">fieldnames</span><span class="op">=</span><span class="var_">headers</span>)
+    
+    <span class="var_">writer</span>.writeheader()      <span class="cm"># Write headers: name,role,salary</span>
+    <span class="var_">writer</span>.writerows(<span class="var_">employees</span>) <span class="cm"># Write all rows</span>
+
+<span class="cm"># 2. READING CSV WITH DICTREADER</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"staff.csv"</span>, <span class="st">"r"</span>, <span class="var_">newline</span><span class="op">=</span><span class="st">""</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">reader</span> <span class="op">=</span> <span class="fn">csv</span>.DictReader(<span class="var_">f</span>)
+    <span class="kw">for</span> <span class="var_">row</span> <span class="kw">in</span> <span class="var_">reader</span>:
+        <span class="bi">print</span>(<span class="st">f"Employee: {row['name']} | Role: {row['role']} | Salary: ${row['salary']}"</span>)</pre>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Binary Files & Streams</h2>
+    <p class="text-block">
+      Binary files (such as images, video, sound, or zip archives) do not contain characters. Instead, they store raw bytes. To open them, you must append <strong><code>b</code></strong> to the mode.
+    </p>
+    <p class="text-block">
+      When writing binary files, you must pass <code>bytes</code> or a <code>bytearray</code>. If you attempt to write standard text strings, Python will raise a <code>TypeError</code>.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">binary_streams.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># 1. WRITING BINARY</span>
+<span class="var_">raw_data</span> <span class="op">=</span> <span class="bi">bytes</span>([<span class="nm">72</span>, <span class="nm">101</span>, <span class="nm">108</span>, <span class="nm">108</span>, <span class="nm">111</span>, <span class="nm">32</span>, <span class="nm">66</span>, <span class="nm">121</span>, <span class="nm">116</span>, <span class="nm">101</span>, <span class="nm">115</span>]) <span class="cm"># "Hello Bytes" in ASCII code</span>
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"binary.bin"</span>, <span class="st">"wb"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">f</span>.write(<span class="var_">raw_data</span>)
+
+<span class="cm"># 2. READING BINARY</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"binary.bin"</span>, <span class="st">"rb"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">binary_content</span> <span class="op">=</span> <span class="var_">f</span>.read()
+    <span class="bi">print</span>(<span class="st">f"Raw Bytes: {binary_content}"</span>)
+    <span class="bi">print</span>(<span class="st">f"Decoded String: {binary_content.decode('utf-8')}"</span>)</pre>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Developer Nightmares: 5 Common Pitfalls</h2>
+    <p class="text-block">
+      Working with files in production environment can lead to severe bugs and server downtime if not managed correctly. Below are the most common pitfalls and their exact solutions.
+    </p>
+
+    <!-- PITFALL 1 -->
+    <div class="warning-box">
+      <span class="warning-label">🚨 Nightmare 1: Leaving File Handles Open (Resource Leaks)</span>
+      <p class="text-block" style="color:var(--text)">
+        <strong>Problem:</strong> Opening thousands of files without closing them eventually hits the OS file descriptor limit. The OS refuses to open any more files, causing database, network, and script failures.
+        <br>
+        <strong>Solution:</strong> Always use Context Managers (<code>with</code> blocks). They guarantee closure under all execution environments.
+      </p>
+    </div>
+
+    <!-- PITFALL 2 -->
+    <div class="warning-box">
+      <span class="warning-label">🚨 Nightmare 2: Windows vs. Unix Path Separators (slash confusion)</span>
+      <p class="text-block" style="color:var(--text)">
+        <strong>Problem:</strong> Hardcoding backslashes (<code>\</code>) on Windows breaks on Unix systems (macOS, Linux) which expect forward slashes (<code>/</code>).
+        <br>
+        <strong>Solution:</strong> Always use the <code>pathlib</code> module. It automatically manages slash orientation across platforms.
+      </p>
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">cross_platform_path.py</span>
+        </div>
+        <pre><span class="kw">from</span> <span class="fn">pathlib</span> <span class="kw">import</span> <span class="var_">Path</span>
+<span class="var_">safe_path</span> <span class="op">=</span> <span class="var_">Path</span>(<span class="st">"src"</span>) <span class="op">/</span> <span class="st">"components"</span> <span class="op">/</span> <span class="st">"App.js"</span>  <span class="cm"># Cross-platform safe!</span></pre>
+      </div>
+    </div>
+
+    <!-- PITFALL 3 -->
+    <div class="warning-box">
+      <span class="warning-label">🚨 Nightmare 3: Loading Multi-Gigabyte Files into RAM</span>
+      <p class="text-block" style="color:var(--text)">
+        <strong>Problem:</strong> Calling <code>f.read()</code> on a 10GB database backup or server log file immediately tries to allocate 10GB of RAM. The server runs out of memory, triggers the OOM killer, and crashes.
+        <br>
+        <strong>Solution:</strong> Process large files iteratively or in fixed chunk sizes.
+      </p>
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">chunked_processing.py</span>
+        </div>
+        <pre><span class="cm"># Process file in 100KB chunks, maintaining extremely low memory utilization</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"huge_dataset.bin"</span>, <span class="st">"rb"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="kw">while</span> <span class="var_">chunk</span> <span class="op">:=</span> <span class="var_">f</span>.read(<span class="nm">102400</span>):
+        <span class="fn">process_data</span>(<span class="var_">chunk</span>)</pre>
+      </div>
+    </div>
+
+    <!-- PITFALL 4 -->
+    <div class="warning-box">
+      <span class="warning-label">🚨 Nightmare 4: Concurrent Access & Write Race Conditions</span>
+      <p class="text-block" style="color:var(--text)">
+        <strong>Problem:</strong> When two processes or threads try to write to the same file simultaneously, the contents mix together, corrupting the file.
+        <br>
+        <strong>Solution:</strong> Use atomic file writes! Write changes to a temporary file first, and then use <code>os.replace()</code> to swap it with the target file atomically.
+      </p>
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">atomic_swap.py</span>
+        </div>
+        <pre><span class="kw">import</span> <span class="fn">os</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"config.json.tmp"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="fn">json</span>.dump(<span class="var_">data</span>, <span class="var_">f</span>)
+<span class="fn">os</span>.replace(<span class="st">"config.json.tmp"</span>, <span class="st">"config.json"</span>)  <span class="cm"># Atomic swap, prevents half-written reads!</span></pre>
+      </div>
+    </div>
+
+    <!-- PITFALL 5 -->
+    <div class="warning-box">
+      <span class="warning-label">🚨 Nightmare 5: Unflushed Buffers (Invisible Data Loss)</span>
+      <p class="text-block" style="color:var(--text)">
+        <strong>Problem:</strong> To optimize system performance, Python buffers file writes in RAM. If you write a line and your system loses power immediately, that line is lost because it was still in the buffer, not yet written on disk.
+        <br>
+        <strong>Solution:</strong> In highly critical software, call <code>f.flush()</code> followed by <code>os.fsync(f.fileno())</code> to force the physical disk controllers to flush buffers immediately to permanent storage.
+      </p>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Format Comparison: JSON vs. CSV vs. Binary</h2>
+    <p class="text-block">
+      Select the absolute best format for your target engineering requirements using this summary matrix.
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>JSON</th>
+            <th>CSV</th>
+            <th>Binary (Raw Bytes)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Main Use Case</strong></td>
+            <td>Configs, APIs, Nested Objects</td>
+            <td>Tabular Data, Spreadsheets</td>
+            <td>Media, Compiled Archives, Encrypted Data</td>
+          </tr>
+          <tr>
+            <td><strong>Structure Complexity</strong></td>
+            <td>Hierarchical / Nested</td>
+            <td>Strictly Flat (Rows/Cols)</td>
+            <td>Unstructured / Custom Protocol</td>
+          </tr>
+          <li>
+            <td><strong>Human Readable?</strong></td>
+            <td>✔️ Yes</td>
+            <td>✔️ Yes</td>
+            <td>❌ No (Hex viewer needed)</td>
+          </li>
+          <tr>
+            <td><strong>Storage Efficiency</strong></td>
+            <td>Medium (High verbose text)</td>
+            <td>Medium-High</td>
+            <td>Maximum (Compact bytes)</td>
+          </tr>
+          <tr>
+            <td><strong>Speed</strong></td>
+            <td>Fast (Needs text parsing)</td>
+            <td>Very Fast</td>
+            <td>Blazing Fast (Direct memory dump)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    
+    // Create temporary container to get plain text without HTML span structures
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = pre.innerHTML;
+    const text = tempElement.innerText;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

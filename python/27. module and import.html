@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Modules &amp; Imports — Python Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --bg2: #0b0f19;
+      --bg3: #111827;
+      --card: #0f172a;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #a78bfa;
+      --v2c: #6366f1;
+      --v3c: #10b981;
+      --v4c: #f43f5e;
+      --accent: #38bdf8;
+      --text: #f9fafb;
+      --text2: #9ca3af;
+      --text3: #4b5563;
+      --code-bg: #030712;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(167, 139, 250, 0.04) 1.5px, transparent 0);
+      background-size: 30px 30px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+
+    header { text-align: center; margin-bottom: 60px; }
+    .tag {
+      display: inline-block; background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    h1 { font-size: 48px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); text-shadow: 0 0 40px rgba(167, 139, 250, 0.2); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 750px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 40px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden;
+    }
+    .topic-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: linear-gradient(to bottom, var(--v1c), var(--v2c));
+    }
+
+    .section-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 14px; background: rgba(167, 139, 250, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 20px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+    h3 { margin: 25px 0 12px; font-size: 18px; font-weight: 700; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+    .concept-box {
+      background: rgba(167, 139, 250, 0.03); border-left: 4px solid var(--v1c);
+      padding: 24px; border-radius: 0 16px 16px 0; margin: 25px 0;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; font-weight: 600; }
+
+    .warning-box {
+      background: rgba(244, 63, 94, 0.03); border-left: 4px solid var(--v4c);
+      padding: 24px; border-radius: 0 16px 16px 0; margin: 25px 0;
+    }
+    .warning-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v4c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; font-weight: 600; }
+
+    .tip-box {
+      background: rgba(16, 185, 129, 0.03); border-left: 4px solid var(--v3c);
+      padding: 24px; border-radius: 0 16px 16px 0; margin: 25px 0;
+    }
+    .tip-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v3c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; font-weight: 600; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin: 25px 0; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+
+    pre { padding: 20px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; color: #e2e8f0; line-height: 1.6; }
+
+    .kw  { color: #f472b6; font-weight: 500; }
+    .fn  { color: #38bdf8; }
+    .st  { color: #34d399; }
+    .nm  { color: #fb923c; }
+    .cm  { color: #64748b; font-style: italic; }
+    .bi  { color: #a78bfa; }
+    .var_{ color: #e2e8f0; }
+    .op  { color: #94a3b8; }
+    .out { color: #fbbf24; }
+
+    /* Level badge pills */
+    .level-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 25px 0; }
+    .level-pill {
+      border-radius: 14px; padding: 16px 18px;
+      border: 1px solid; display: flex; flex-direction: column; gap: 4px;
+    }
+    .level-pill .lp-name { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 700; }
+    .level-pill .lp-syntax  { font-family: 'Fira Code', monospace; font-size: 11px; opacity: 0.8; font-weight: 500; }
+    .level-pill .lp-desc { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+
+    .lp-direct    { background: rgba(56,189,248,0.06); border-color: #0ea5e9; }
+    .lp-direct .lp-name    { color: #38bdf8; }
+    .lp-specific  { background: rgba(167,139,250,0.06); border-color: #8b5cf6; }
+    .lp-specific .lp-name  { color: #a78bfa; }
+    .lp-alias     { background: rgba(16,185,129,0.06); border-color: #10b981; }
+    .lp-alias .lp-name     { color: #34d399; }
+    .lp-wildcard  { background: rgba(244,63,94,0.06); border-color: #e11d48; }
+    .lp-wildcard .lp-name  { color: #fb7185; }
+
+    /* Output strip */
+    .output-strip { background: #010409; border: 1px solid #1e293b; border-radius: 10px; padding: 14px 20px; margin-top: -10px; margin-bottom: 25px; }
+    .out-label { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--v3c); letter-spacing: 0.08em; margin-bottom: 6px; display: block; }
+    .output-strip pre { padding: 0; font-size: 13px; }
+
+    table { width: 100%; border-collapse: collapse; margin: 25px 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 12px 18px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(255,255,255,0.03); color: #fff; font-weight: 600; font-size: 14px; }
+    td { color: var(--text2); font-size: 14px; }
+    tr:last-child td { border-bottom: none; }
+
+    ul, ol { margin-left: 24px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    li strong { color: #fff; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 6px; color: var(--v1c); font-size: 14px; }
+
+    footer { text-align: center; padding: 40px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; margin-top: 60px; }
+
+    .copy-btn {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--text3); padding: 4px 10px; border-radius: 6px; font-size: 11px;
+      cursor: pointer; transition: all 0.2s; margin-left: auto;
+      font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 5px;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.08); color: var(--v1c); border-color: var(--v1c); }
+    .copy-btn.copied { color: var(--v3c); border-color: var(--v3c); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="tag">Python Masterclass</span>
+    <h1>Modules &amp; <span class="highlight">Imports</span></h1>
+    <p class="desc">A complete, visual, and highly practical guide to modular Python programming — structuring code, mastering paths, using <code>__name__</code>, and avoiding circular imports.</p>
+  </header>
+
+  <!-- ── SECTION 1 : What is a Module? ─────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is a Module?</h2>
+
+    <p class="text-block">
+      In Python, a <strong>module</strong> is simply a file containing Python code (definitions, functions, classes, and variables) with a <code>.py</code> extension. 
+      As your programs grow, keeping all code in a single file becomes unmanageable. Splitting it into multiple logical modules makes your codebase:
+      <strong>reusable</strong>, <strong>maintainable</strong>, and <strong>organized</strong>.
+    </p>
+
+    <div class="concept-box">
+      <span class="box-label">🧱 The lego bricks of coding</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        Instead of building a giant plastic castle out of a single molded piece, Lego gives you individual bricks of different colors and sizes.
+        <br><br>
+        A <strong>module is an individual Lego brick</strong>. You build it once, test it separately, and then import it wherever you need it to construct a larger system.
+      </p>
+    </div>
+
+    <h3>Creating and Importing a Custom Module</h3>
+    <p class="text-block">
+      Let's create a simple utility file called <code>calculator.py</code> and then import it into our main file, <code>main.py</code>.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">calculator.py (Module)</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># Global variable inside module</span>
+<span class="var_">author</span> <span class="op">=</span> <span class="st">"Amit Dhakad"</span>
+
+<span class="kw">def</span> <span class="fn">add</span>(<span class="var_">a</span>, <span class="var_">b</span>):
+    <span class="kw">return</span> <span class="var_">a</span> <span class="op">+</span> <span class="var_">b</span>
+
+<span class="kw">def</span> <span class="fn">subtract</span>(<span class="var_">a</span>, <span class="var_">b</span>):
+    <span class="kw">return</span> <span class="var_">a</span> <span class="op">-</span> <span class="var_">b</span></pre>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">main.py (Application script)</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">calculator</span>   <span class="cm"># Looks for calculator.py in the current directory</span>
+
+<span class="cm"># Access items using dot notation</span>
+<span class="var_">sum_res</span> <span class="op">=</span> <span class="fn">calculator</span>.add(<span class="nm">12</span>, <span class="nm">8</span>)
+<span class="var_">diff_res</span> <span class="op">=</span> <span class="fn">calculator</span>.subtract(<span class="nm">25</span>, <span class="nm">5</span>)
+
+<span class="bi">print</span>(<span class="st">"Sum:"</span>, <span class="var_">sum_res</span>)
+<span class="bi">print</span>(<span class="st">"Diff:"</span>, <span class="var_">diff_res</span>)
+<span class="bi">print</span>(<span class="st">"Author:"</span>, <span class="fn">calculator</span>.author)</pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ OUTPUT</span>
+      <pre><span class="out">Sum: 20
+Diff: 20
+Author: Amit Dhakad</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2 : Import Techniques ─────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> The Four Import Techniques</h2>
+
+    <p class="text-block">
+      Python gives you several syntax options for importing code, depending on your needs and namespace preferences.
+    </p>
+
+    <div class="level-grid">
+      <div class="level-pill lp-direct">
+        <span class="lp-name">1. Direct Import</span>
+        <span class="lp-syntax">import math</span>
+        <span class="lp-desc">Loads the entire module. Access via <code>math.sqrt()</code>. Keeps namespaces clean and explicit.</span>
+      </div>
+      <div class="level-pill lp-specific">
+        <span class="lp-name">2. Specific Import</span>
+        <span class="lp-syntax">from math import pi</span>
+        <span class="lp-desc">Loads specific items directly. Access via <code>pi</code> without module prefix. Saves typing.</span>
+      </div>
+      <div class="level-pill lp-alias">
+        <span class="lp-name">3. Aliased Import</span>
+        <span class="lp-syntax">import numpy as np</span>
+        <span class="lp-desc">Renames the module or object locally. Extremely useful to avoid name collisions and shorten typing.</span>
+      </div>
+      <div class="level-pill lp-wildcard">
+        <span class="lp-name">4. Wildcard Import</span>
+        <span class="lp-syntax">from math import *</span>
+        <span class="lp-desc">Loads everything. DANGEROUS! Pollutes your local namespace and causes severe name collisions.</span>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <span class="warning-label">⚠️ DANGERS OF WILDCARD IMPORTS (from module import *)</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        Suppose you import wildcards from two modules that define a function with the same name:
+        <br><br>
+        <code>from math import *</code><br>
+        <code>from my_custom_math import *</code>  <span class="cm"># Also defines a custom "sin" function</span>
+        <br><br>
+        Your local code now calls <code>sin()</code>. Which one is executed?
+        The second import silently overwrote the first one! This leads to extremely hard-to-find runtime bugs.
+        <strong>Avoid wildcard imports in production!</strong>
+      </p>
+    </div>
+
+    <h3>Code Demonstration of Import Styles</h3>
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">import_styles.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># Technique 1: Direct</span>
+<span class="kw">import</span> <span class="fn">math</span>
+<span class="bi">print</span>(<span class="fn">math</span>.sqrt(<span class="nm">16</span>))  <span class="cm"># Output: 4.0</span>
+
+<span class="cm"># Technique 2: Specific</span>
+<span class="kw">from</span> <span class="fn">math</span> <span class="kw">import</span> <span class="var_">pi</span>, <span class="var_">sin</span>
+<span class="bi">print</span>(<span class="var_">pi</span>)             <span class="cm"># Output: 3.14159...</span>
+
+<span class="cm"># Technique 3: Aliased Module</span>
+<span class="kw">import</span> <span class="fn">datetime</span> <span class="kw">as</span> <span class="fn">dt</span>
+<span class="bi">print</span>(<span class="fn">dt</span>.date.today())
+
+<span class="cm"># Technique 3b: Aliased Specific Item</span>
+<span class="kw">from</span> <span class="fn">math</span> <span class="kw">import</span> <span class="var_">factorial</span> <span class="kw">as</span> <span class="fn">fact</span>
+<span class="bi">print</span>(<span class="fn">fact</span>(<span class="nm">5</span>))        <span class="cm"># Output: 120</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3 : Module Search Path ────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> How Python Finds Modules: <code>sys.path</code></h2>
+
+    <p class="text-block">
+      When you run <code>import my_module</code>, how does Python know where to look? 
+      It searches inside the list of directories defined in <strong><code>sys.path</code></strong> in the following strict order:
+    </p>
+
+    <ol>
+      <li><strong>Current Directory</strong>: The directory containing the script that was executed.</li>
+      <li><strong>PYTHONPATH</strong>: An environment variable containing user-defined directory lists.</li>
+      <li><strong>Standard Libraries</strong>: Built-in libraries like <code>sys</code>, <code>os</code>, <code>math</code>, etc.</li>
+      <li><strong>Third-Party Directories</strong>: The <code>site-packages</code> folder where <code>pip</code> installs external tools.</li>
+    </ol>
+
+    <div class="concept-box">
+      <span class="box-label">🔍 Inspecting the search path</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        You can print and even dynamically append new directories to <code>sys.path</code> at runtime!
+      </p>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">sys_path_debug.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">sys</span>
+
+<span class="cm"># Print search directories</span>
+<span class="kw">for</span> <span class="var_">path</span> <span class="kw">in</span> <span class="fn">sys</span>.path:
+    <span class="bi">print</span>(<span class="var_">path</span>)
+
+<span class="cm"># Dynamically importing a module from an arbitrary folder on your PC</span>
+<span class="fn">sys</span>.path.append(<span class="st">"D:/my_custom_code_folder"</span>)
+<span class="kw">import</span> <span class="fn">my_hidden_module</span>  <span class="cm"># Works perfectly now!</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4 : The Special __name__ variable ──────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Script vs. Module: <code>if __name__ == "__main__"</code></h2>
+
+    <p class="text-block">
+      When Python imports a module, it runs <strong>all</strong> code inside that module file immediately. 
+      If your module has executable statements (like test prints or demo calls), they will run in the main application during the import!
+      <br><br>
+      To prevent this, Python provides a special global variable: <strong><code>__name__</code></strong>.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>How File Runs</th><th>Value of <code>__name__</code></th><th>Role of File</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Direct execution</strong> (e.g. <code>python my_file.py</code>)</td><td><code>"__main__"</code></td><td>It is the script starting the program.</td></tr>
+        <tr><td><strong>Imported execution</strong> (e.g. <code>import my_file</code>)</td><td><code>"my_file"</code> (the actual file name)</td><td>It acts as a library module.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip-box">
+      <span class="tip-label">💡 The Core Pattern</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        We wrap any execution block or test code in <code>if __name__ == "__main__":</code>.
+        This guarantees the code block runs <strong>only</strong> when you run that file directly, and stays silent when imported.
+      </p>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">database.py (Module file)</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">connect</span>():
+    <span class="bi">print</span>(<span class="st">"Successfully connected to Database."</span>)
+
+<span class="cm"># If someone runs "python database.py" directly, let's run test cases</span>
+<span class="kw">if</span> <span class="bi">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:
+    <span class="bi">print</span>(<span class="st">"Running internal diagnostics tests for database.py..."</span>)
+    <span class="fn">connect</span>()
+    <span class="bi">print</span>(<span class="st">"All diagnostics checks passed!"</span>)</pre>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">app.py (Primary Application)</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">database</span>   <span class="cm"># No output from diagnostics block! It's completely silent.</span>
+
+<span class="bi">print</span>(<span class="st">"Application starting..."</span>)
+<span class="fn">database</span>.connect()</pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ RUNNING "python database.py" (DIRECTLY)</span>
+      <pre><span class="out">Running internal diagnostics tests for database.py...
+Successfully connected to Database.
+All diagnostics checks passed!</span></pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ RUNNING "python app.py" (IMPORTED)</span>
+      <pre><span class="out">Application starting...
+Successfully connected to Database.</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5 : What is a Package? ────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Python Packages &amp; <code>__init__.py</code></h2>
+
+    <p class="text-block">
+      A <strong>package</strong> is a directory containing multiple modules. 
+      It allows you to group related modules together. 
+      To convert a standard folder into a Python package, it traditionally needs a special file inside named <strong><code>__init__.py</code></strong>.
+    </p>
+
+    <div class="concept-box">
+      <span class="box-label">📁 Package Tree Structure</span>
+      <pre style="padding:0; line-height:1.4; color: #fff;">
+my_project/
+├── <span style="color:var(--v1c);">main.py</span>
+└── <span style="color:var(--accent);">ecommerce/</span>                <span class="cm">&lt;-- This directory is the package</span>
+    ├── <span style="color:var(--v1c);">__init__.py</span>           <span class="cm">&lt;-- Initializer script</span>
+    ├── <span style="color:var(--v1c);">payments.py</span>           <span class="cm">&lt;-- Sub-module</span>
+    └── <span style="color:var(--v1c);">shipping.py</span>           <span class="cm">&lt;-- Sub-module</span></pre>
+    </div>
+
+    <h3>What does <code>__init__.py</code> do?</h3>
+    <ul>
+      <li>It marks the folder as an importable package (optional in Python 3.3+, but standard practice).</li>
+      <li>It executes automatically when the package is imported.</li>
+      <li>It is used to initialize package-level configurations, log setups, or package-level variables.</li>
+      <li>It can control what gets exported during wildcard imports using <code>__all__</code>.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">ecommerce/__init__.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="bi">print</span>(<span class="st">"Initializing Ecommerce Package System..."</span>)
+
+<span class="cm"># Provide package level variables</span>
+<span class="var_">VERSION</span> <span class="op">=</span> <span class="st">"2.1.0"</span></pre>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">ecommerce/payments.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">process_upi</span>(<span class="var_">amount</span>):
+    <span class="bi">print</span>(f<span class="st">"Processing UPI payment of ₹{amount}"</span>)</pre>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">main.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">ecommerce</span>             <span class="cm"># Triggers execution of __init__.py</span>
+<span class="kw">from</span> <span class="fn">ecommerce</span> <span class="kw">import</span> <span class="fn">payments</span>  <span class="cm"># Import payments sub-module</span>
+
+<span class="bi">print</span>(<span class="st">"Version:"</span>, <span class="fn">ecommerce</span>.VERSION)
+<span class="fn">payments</span>.process_upi(<span class="nm">499</span>)</pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ OUTPUT</span>
+      <pre><span class="out">Initializing Ecommerce Package System...
+Version: 2.1.0
+Processing UPI payment of ₹499</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6 : Absolute vs Relative Imports ──────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">06</span> Absolute vs. Relative Imports</h2>
+
+    <p class="text-block">
+      When importing one module into another inside the same package, you have two approaches:
+    </p>
+
+    <h3>1. Absolute Imports</h3>
+    <p class="text-block">
+      Specify the full path from the project root folder. 
+      This is generally <strong>highly recommended</strong> because it is clean, easy to read, and works regardless of where the script is called.
+      <br>
+      <code>from ecommerce.shipping import calculate_tax</code>
+    </p>
+
+    <h3>2. Relative Imports</h3>
+    <p class="text-block">
+      Uses dot (<code>.</code>) syntax to specify the path relative to the current module. 
+      This is useful when writing highly self-contained packages where the package name could change in the future.
+    </p>
+
+    <ul>
+      <li><code>.</code> represents the <strong>current directory</strong>.</li>
+      <li><code>..</code> represents the <strong>parent directory</strong>.</li>
+    </ul>
+
+    <div class="warning-box">
+      <span class="warning-label">⚠️ RELATIVE IMPORT RESTRICTION</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        Relative imports use the module's <code>__name__</code> to resolve positions. 
+        Because of this, <strong>relative imports only work inside imported package modules</strong>. 
+        If you run a file with relative imports directly (e.g. <code>python shipping.py</code>), you will get:
+        <br>
+        <code>ImportError: attempted relative import with no known parent package</code>.
+      </p>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">ecommerce/payments.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># Relative import from sibling file: shipping.py</span>
+<span class="kw">from</span> <span class="op">.</span><span class="fn">shipping</span> <span class="kw">import</span> <span class="var_">deliver</span>
+
+<span class="kw">def</span> <span class="fn">checkout</span>():
+    <span class="bi">print</span>(<span class="st">"Checkout successful!"</span>)
+    <span class="fn">deliver</span>()</pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7 : Circular Imports ──────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">07</span> Understanding Circular Imports &amp; Solutions</h2>
+
+    <p class="text-block">
+      A <strong>circular import</strong> happens when Module A attempts to import Module B, and at the same time, Module B attempts to import Module A. 
+      This creates an infinite loop of execution, and Python will raise an error.
+    </p>
+
+    <div class="concept-box" style="border-left-color: var(--v4c); background: rgba(244,63,94,0.02);">
+      <span class="box-label" style="color: var(--v4c);">🔄 The Deadlock Loop Diagram</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        <code>module_a.py</code> imports <code>module_b.py</code> before defining its classes.
+        <br>
+        <code>module_b.py</code> imports <code>module_a.py</code> to execute code.
+        <br>
+        <strong>Result:</strong> <code>AttributeError: module 'module_a' has no attribute 'x'</code> or <code>ImportError</code>.
+      </p>
+    </div>
+
+    <h3>How to Fix Circular Imports</h3>
+    <ol>
+      <li><strong>Refactor Common Code</strong>: Move the shared dependencies to a new third module (e.g. <code>utils.py</code>) that both module A and B can import without creating a cycle. <em>(Highly Recommended!)</em></li>
+      <li><strong>Deferred / Local Imports</strong>: Move the <code>import</code> statement inside the specific function or method where it is needed instead of putting it at the very top of the file.</li>
+    </ol>
+
+    <h3>Example: Fixing with Deferred / Local Import</h3>
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">module_a.py (Deferred Fix)</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">action_a</span>():
+    <span class="bi">print</span>(<span class="st">"Executing Action A..."</span>)
+
+<span class="kw">def</span> <span class="fn">trigger_b</span>():
+    <span class="cm"># LOCAL IMPORT: avoids circular loop at initial compile/load time</span>
+    <span class="kw">import</span> <span class="fn">module_b</span>
+    <span class="fn">module_b</span>.action_b()</pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8 : Summary ───────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">08</span> Modules &amp; Imports Summary Checklist</h2>
+    <div class="tip-box">
+      <span class="tip-label">💡 Quick Recap</span>
+      <ul>
+        <li><strong>Module</strong>: Any <code>.py</code> file containing Python statements and definitions.</li>
+        <li><strong>Four import methods</strong>: Direct (<code>import X</code>), Specific (<code>from X import y</code>), Aliased (<code>import X as z</code>), and Wildcard (<code>from X import *</code>). Avoid Wildcards!</li>
+        <li><strong>sys.path</strong>: List of directories Python checks when importing modules. Checked sequentially from current directory to standard libraries and pip folders.</li>
+        <li><strong>__name__</strong>: Set to <code>"__main__"</code> when the file is run directly, and set to the file name when imported as a library module.</li>
+        <li><strong>if __name__ == "__main__":</strong>: Ensures a code block runs only on direct script execution, keeping imports clean and modular.</li>
+        <li><strong>Package</strong>: A directory holding multiple module files. Made formal with an optional <code>__init__.py</code> script.</li>
+        <li><strong>Absolute Imports</strong>: Explicit root-level path specification (recommended).</li>
+        <li><strong>Relative Imports</strong>: Dot-based pathing (e.g. <code>from . import sibling</code>). Works only inside imported packages, not direct scripts.</li>
+        <li><strong>Circular Imports</strong>: Infinite loop when two files import each other. Resolved easily via local function imports or refactoring.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = pre.innerHTML;
+    const text = tmp.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = `<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

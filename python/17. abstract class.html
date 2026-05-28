@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abstract Classes — Python OOP Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #8b5cf6; /* Abstract Purple */
+      --v2c: #3b82f6; /* Interface Blue */
+      --v3c: #10b981;
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 700px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(139, 92, 246, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 30px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(139, 92, 246, 0.05); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin-bottom: 40px;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; }
+    .kw { color: #c084fc; } .fn { color: #60a5fa; } .st { color: #86efac; } .nm { color: #fb923c; } .cm { color: #475569; font-style: italic; } .bi { color: #38bdf8; } .dec { color: #f472b6; } .var_ { color: #e2e8f0; } .op { color: #94a3b8; }
+
+    .rule-box {
+        background: rgba(59, 130, 246, 0.05); border: 1px dashed var(--v2c);
+        padding: 20px; border-radius: 12px; margin: 20px 0;
+    }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; }
+    
+    ul { margin-left: 20px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--v1c); }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 05 · Abstract Classes</span>
+    <h1>Designing Blueprints with <span class="highlight">Abstract Classes</span></h1>
+    <p class="desc">Enforce strict structures and define "what to do" without worrying about "how to do it" using Python's abc module.</p>
+  </header>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is an Abstract Class?</h2>
+    <p class="text-block">
+      An <strong>Abstract Class</strong> is a class that contains one or more abstract methods. An abstract method is a method that is declared, but contains no implementation. Abstract classes cannot be instantiated, and require subclasses to provide implementations for the abstract methods.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">📐 Real World Case: Architectural Blueprints</span>
+      <div class="rl-text">
+        Think of an abstract class as a blueprint for a house. The blueprint specifies that a house MUST have a <code>build_roof()</code> and <code>build_walls()</code>, but it doesn't build them itself. It forces any actual house (subclass) created from it to implement those specific construction methods.
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> The abc Module</h2>
+    <p class="text-block">
+      Unlike some other languages, Python does not have built-in keywords for abstract classes. Instead, we use the built-in <strong><code>abc</code> (Abstract Base Classes)</strong> module.
+    </p>
+    <p class="text-block">
+      To create an abstract class, you inherit from <code>ABC</code> (Abstract Base Class) and use the <code>@abstractmethod</code> decorator for the methods you want to enforce.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">shape_abstract.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">from</span> <span class="fn">abc</span> <span class="kw">import</span> <span class="fn">ABC</span>, <span class="fn">abstractmethod</span>
+
+<span class="kw">class</span> <span class="fn">Shape</span>(<span class="fn">ABC</span>):
+    <span class="dec">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var_">self</span>):
+        <span class="kw">pass</span>
+        
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"I am a geometric shape."</span>)
+
+<span class="cm"># The following line would raise a TypeError:</span>
+<span class="cm"># s = Shape() # ERROR! Cannot instantiate abstract class</span></pre>
+    </div>
+
+    <div class="rule-box" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+        <strong style="color: #ef4444;">⚠️ Common Gotcha:</strong> You <strong>MUST</strong> inherit from <code>ABC</code> (e.g., <code>class Shape(ABC):</code>). If you only use the <code>@abstractmethod</code> decorator but write <code>class Shape():</code>, Python will <strong>NOT</strong> enforce the abstract methods, and you will still be able to instantiate the class!
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Implementing the Blueprint</h2>
+    <p class="text-block">
+      When a child class inherits from an abstract class, it <strong>MUST</strong> override and implement all the abstract methods. If it doesn't, the child class also becomes abstract and cannot be instantiated.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">concrete_shapes.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">math</span>
+<span class="kw">from</span> <span class="fn">abc</span> <span class="kw">import</span> <span class="fn">ABC</span>, <span class="fn">abstractmethod</span>
+
+<span class="kw">class</span> <span class="fn">Shape</span>(<span class="fn">ABC</span>):
+    <span class="dec">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var_">self</span>):
+        <span class="kw">pass</span>
+
+<span class="kw">class</span> <span class="fn">Circle</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, radius):
+        <span class="var_">self</span>.radius <span class="op">=</span> radius
+        
+    <span class="cm"># We MUST implement the area method</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var_">self</span>):
+        <span class="kw">return</span> <span class="fn">math</span>.pi <span class="op">*</span> (<span class="var_">self</span>.radius <span class="op">**</span> <span class="nm">2</span>)
+
+<span class="kw">class</span> <span class="fn">Square</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, side):
+        <span class="var_">self</span>.side <span class="op">=</span> side
+        
+    <span class="cm"># We MUST implement the area method</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var_">self</span>):
+        <span class="kw">return</span> <span class="var_">self</span>.side <span class="op">**</span> <span class="nm">2</span>
+
+<span class="var_">c</span> <span class="op">=</span> <span class="fn">Circle</span>(<span class="nm">5</span>)
+<span class="bi">print</span>(<span class="st">f"Circle Area: {c.area():.2f}"</span>)
+
+<span class="var_">sq</span> <span class="op">=</span> <span class="fn">Square</span>(<span class="nm">4</span>)
+<span class="bi">print</span>(<span class="st">f"Square Area: {sq.area()}"</span>)</pre>
+    </div>
+
+    <div class="rule-box">
+        <strong>💡 Key Rule:</strong> Abstract methods act as a strict contract. The developer writing the <code>Circle</code> class doesn't have a choice; they <em>must</em> provide a way to calculate the area, making large codebases predictable.
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Real-World Example: Payment Processors</h2>
+    <p class="text-block">
+      Abstract classes are frequently used in API designs and large systems (like payment gateways) to ensure all plugins/modules adhere to the exact same structure.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">payment_gateway.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">from</span> <span class="fn">abc</span> <span class="kw">import</span> <span class="fn">ABC</span>, <span class="fn">abstractmethod</span>
+
+<span class="kw">class</span> <span class="fn">PaymentProcessor</span>(<span class="fn">ABC</span>):
+    <span class="dec">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">authenticate</span>(<span class="var_">self</span>):
+        <span class="kw">pass</span>
+
+    <span class="dec">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">process_payment</span>(<span class="var_">self</span>, amount):
+        <span class="kw">pass</span>
+
+<span class="kw">class</span> <span class="fn">StripeProcessor</span>(<span class="fn">PaymentProcessor</span>):
+    <span class="kw">def</span> <span class="fn">authenticate</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Authenticating with Stripe API..."</span>)
+        
+    <span class="kw">def</span> <span class="fn">process_payment</span>(<span class="var_">self</span>, amount):
+        <span class="bi">print</span>(<span class="st">f"Processing ${amount} via Stripe."</span>)
+
+<span class="kw">class</span> <span class="fn">PayPalProcessor</span>(<span class="fn">PaymentProcessor</span>):
+    <span class="kw">def</span> <span class="fn">authenticate</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Authenticating with PayPal OAuth..."</span>)
+        
+    <span class="kw">def</span> <span class="fn">process_payment</span>(<span class="var_">self</span>, amount):
+        <span class="bi">print</span>(<span class="st">f"Processing ${amount} via PayPal."</span>)
+
+<span class="kw">def</span> <span class="fn">checkout</span>(processor: <span class="fn">PaymentProcessor</span>, amount):
+    processor.authenticate()
+    processor.process_payment(amount)
+
+<span class="cm"># The system accepts any class that correctly implements the blueprint!</span>
+<span class="var_">my_processor</span> <span class="op">=</span> <span class="fn">StripeProcessor</span>()
+checkout(<span class="var_">my_processor</span>, <span class="nm">50.00</span>)</pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

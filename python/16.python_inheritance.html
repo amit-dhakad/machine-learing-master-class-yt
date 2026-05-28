@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inheritance — Python OOP Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #f59e0b; /* Inheritance Orange */
+      --v2c: #ef4444; /* MRO Red */
+      --v3c: #10b981; /* Encapsulation Green */
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 700px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(245,158,11,0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 30px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin-bottom: 40px;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; }
+    .kw { color: #c084fc; } .fn { color: #60a5fa; } .st { color: #86efac; } .nm { color: #fb923c; } .cm { color: #475569; font-style: italic; } .bi { color: #38bdf8; } .dec { color: #f472b6; } .var_ { color: #e2e8f0; } .op { color: #94a3b8; }
+
+    .inheritance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 30px 0; }
+    .inh-item { background: var(--bg2); border: 1px solid var(--border); padding: 25px; border-radius: 16px; }
+    .inh-name { font-weight: 700; color: var(--v1c); display: block; margin-bottom: 10px; font-size: 18px; }
+    .inh-desc { font-size: 14px; color: var(--text2); line-height: 1.5; }
+
+    .mro-box {
+        background: rgba(239, 68, 68, 0.05); border: 1px dashed var(--v2c);
+        padding: 20px; border-radius: 12px; margin: 20px 0;
+    }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; }
+    
+    ul { margin-left: 20px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--v1c); }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 04 · Inheritance</span>
+    <h1>The Legacy of <span class="highlight">Inheritance</span></h1>
+    <p class="desc">Creating new classes based on existing ones to promote code reusability and establish hierarchical relationships.</p>
+  </header>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is Inheritance?</h2>
+    <p class="text-block">
+      Inheritance allows a <strong>Child Class</strong> (Subclass) to derive attributes and methods from a <strong>Parent Class</strong> (Base class). It enables <strong>Code Reusability</strong>—you don't have to write the same logic twice.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">🧬 Real World Case: Family Genetics</span>
+      <div class="rl-text">
+        Just as you inherit features like eye color or height from your parents, a Child Class inherits features (methods/variables) from its Parent Class. You can also "evolve" by adding your own unique features or "overriding" inherited ones.
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> Types of Inheritance</h2>
+    <p class="text-block">Python supports several inheritance patterns depending on how classes are structured.</p>
+
+    <div class="inheritance-grid">
+      <div class="inh-item">
+        <span class="inh-name">Single Inheritance</span>
+        <span class="inh-desc">One child class inherits from exactly one parent class.</span>
+      </div>
+      <div class="inh-item">
+        <span class="inh-name">Multiple Inheritance</span>
+        <span class="inh-desc">A child class inherits from more than one parent class.</span>
+      </div>
+      <div class="inh-item">
+        <span class="inh-name">Multi-level Inheritance</span>
+        <span class="inh-desc">A child class inherits from a parent, which in turn inherits from another parent (Grandparent).</span>
+      </div>
+      <div class="inh-item">
+        <span class="inh-name">Hierarchical Inheritance</span>
+        <span class="inh-desc">Multiple child classes inherit from a single parent class.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Single & Multi-level Inheritance</h2>
+    <p class="text-block">
+      In <strong>Single Inheritance</strong>, we use <code>class Child(Parent):</code>. In <strong>Multi-level</strong>, the chain continues.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">levels_demo.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Device</span>: <span class="cm"># Grandparent</span>
+    <span class="kw">def</span> <span class="fn">power_on</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Device is now ON"</span>)
+
+<span class="kw">class</span> <span class="fn">Phone</span>(<span class="fn">Device</span>): <span class="cm"># Parent (Single Inheritance)</span>
+    <span class="kw">def</span> <span class="fn">call</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Making a call..."</span>)
+
+<span class="kw">class</span> <span class="fn">SmartPhone</span>(<span class="fn">Phone</span>): <span class="cm"># Child (Multi-level)</span>
+    <span class="kw">def</span> <span class="fn">browse</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Browsing the web..."</span>)
+
+<span class="var_">s</span> <span class="op">=</span> <span class="fn">SmartPhone</span>()
+<span class="var_">s</span>.power_on() <span class="cm"># Inherited from Device</span>
+<span class="var_">s</span>.call()     <span class="cm"># Inherited from Phone</span>
+<span class="var_">s</span>.browse()   <span class="cm"># Own method</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Multiple Inheritance & MRO</h2>
+    <p class="text-block">
+      A class can inherit from multiple parents. However, if two parents have the same method, Python uses <strong>MRO (Method Resolution Order)</strong> to decide which one to call.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">multiple_inh.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Camera</span>:
+    <span class="kw">def</span> <span class="fn">take_photo</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Click! Photo taken."</span>)
+
+<span class="kw">class</span> <span class="fn">MusicPlayer</span>:
+    <span class="kw">def</span> <span class="fn">play</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Playing music..."</span>)
+
+<span class="kw">class</span> <span class="fn">MultimediaPhone</span>(<span class="fn">Camera</span>, <span class="fn">MusicPlayer</span>):
+    <span class="kw">pass</span>
+
+<span class="var_">mp</span> <span class="op">=</span> <span class="fn">MultimediaPhone</span>()
+<span class="var_">mp</span>.take_photo()
+<span class="var_">mp</span>.play()</pre>
+    </div>
+
+    <div class="mro-box">
+        <strong>💡 Pro Tip:</strong> You can check the MRO of any class using <code>ClassName.mro()</code>. It tells you the exact search path Python follows to find a method.
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Inheritance + Encapsulation</h2>
+    <p class="text-block">
+      This is where things get interesting. How do access modifiers behave when inherited?
+    </p>
+
+    <ul>
+        <li><strong>Public:</strong> Inherited and accessible normally.</li>
+        <li><strong>Protected (<code>_var</code>):</strong> Inherited and accessible in the child class (by convention).</li>
+        <li><strong>Private (<code>__var</code>):</strong> <strong>NOT</strong> directly accessible in the child class due to Name Mangling.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">encap_inheritance.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Parent</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>):
+        <span class="var_">self</span>.public <span class="op">=</span> <span class="st">"I am Public"</span>
+        <span class="var_">self</span>._protected <span class="op">=</span> <span class="st">"I am Protected"</span>
+        <span class="var_">self</span>.__private <span class="op">=</span> <span class="st">"I am Private"</span>
+
+<span class="kw">class</span> <span class="fn">Child</span>(<span class="fn">Parent</span>):
+    <span class="kw">def</span> <span class="fn">show_data</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="var_">self</span>.public)      <span class="cm"># OK</span>
+        <span class="bi">print</span>(<span class="var_">self</span>._protected)   <span class="cm"># OK (Protected is meant for this!)</span>
+        <span class="cm"># print(self.__private)  # ERROR! Child can't see this.</span>
+        
+        <span class="cm"># Accessing private via mangled name (Not recommended)</span>
+        <span class="bi">print</span>(<span class="var_">self</span>._Parent__private) <span class="cm"># Works!</span>
+
+<span class="var_">obj</span> <span class="op">=</span> <span class="fn">Child</span>()
+<span class="var_">obj</span>.show_data()</pre>
+    </div>
+
+    <div class="analogy-box" style="border-color: var(--v3c); background: rgba(16, 185, 129, 0.05);">
+        <span class="box-label" style="color: var(--v3c);">🛡️ The Shield Rule</span>
+        <div class="rl-text">
+          Encapsulation ensures that even if you inherit everything, you don't necessarily have the "keys" to the private vaults of your parent. This maintains <strong>Data Integrity</strong> even across hierarchies.
+        </div>
+      </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">06</span> Using super()</h2>
+    <p class="text-block">
+      The <code>super()</code> function is used to call methods (especially <code>__init__</code>) from the parent class without naming it explicitly.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">super_usage.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Employee</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, name, salary):
+        <span class="var_">self</span>.name <span class="op">=</span> name
+        <span class="var_">self</span>.salary <span class="op">=</span> salary
+
+<span class="kw">class</span> <span class="fn">Manager</span>(<span class="fn">Employee</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, name, salary, department):
+        <span class="cm"># Use super() to handle parent initialization</span>
+        <span class="fn">super</span>().<span class="fn">__init__</span>(name, salary)
+        <span class="var_">self</span>.department <span class="op">=</span> department
+
+<span class="var_">m</span> <span class="op">=</span> <span class="fn">Manager</span>(<span class="st">"Alice"</span>, <span class="nm">90000</span>, <span class="st">"Engineering"</span>)
+<span class="bi">print</span>(<span class="st">f"{m.name} manages {m.department}"</span>)</pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

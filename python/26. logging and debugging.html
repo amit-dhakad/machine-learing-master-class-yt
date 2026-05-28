@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Logging & Debugging — Python Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --bg2: #0b0f19;
+      --bg3: #111827;
+      --card: #0f172a;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #a78bfa;
+      --v2c: #6366f1;
+      --v3c: #10b981;
+      --v4c: #f43f5e;
+      --accent: #38bdf8;
+      --text: #f9fafb;
+      --text2: #9ca3af;
+      --text3: #4b5563;
+      --code-bg: #030712;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(167, 139, 250, 0.04) 1.5px, transparent 0);
+      background-size: 30px 30px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+
+    header { text-align: center; margin-bottom: 60px; }
+    .tag {
+      display: inline-block; background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    h1 { font-size: 48px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); text-shadow: 0 0 40px rgba(167, 139, 250, 0.2); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 750px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 40px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden;
+    }
+    .topic-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: linear-gradient(to bottom, var(--v1c), var(--v2c));
+    }
+
+    .section-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 14px; background: rgba(167, 139, 250, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 20px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+    h3 { margin: 25px 0 12px; font-size: 18px; font-weight: 700; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+    .concept-box {
+      background: rgba(167, 139, 250, 0.03); border-left: 4px solid var(--v1c);
+      padding: 24px; border-radius: 0 16px 16px 0; margin: 25px 0;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; font-weight: 600; }
+
+    .warning-box {
+      background: rgba(244, 63, 94, 0.03); border-left: 4px solid var(--v4c);
+      padding: 24px; border-radius: 0 16px 16px 0; margin: 25px 0;
+    }
+    .warning-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v4c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; font-weight: 600; }
+
+    .tip-box {
+      background: rgba(16, 185, 129, 0.03); border-left: 4px solid var(--v3c);
+      padding: 24px; border-radius: 0 16px 16px 0; margin: 25px 0;
+    }
+    .tip-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v3c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; font-weight: 600; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin: 25px 0; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+
+    pre { padding: 20px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; color: #e2e8f0; line-height: 1.6; }
+
+    .kw  { color: #f472b6; font-weight: 500; }
+    .fn  { color: #38bdf8; }
+    .st  { color: #34d399; }
+    .nm  { color: #fb923c; }
+    .cm  { color: #64748b; font-style: italic; }
+    .bi  { color: #a78bfa; }
+    .var_{ color: #e2e8f0; }
+    .op  { color: #94a3b8; }
+    .out { color: #fbbf24; }
+
+    /* Level badge pills */
+    .level-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin: 25px 0; }
+    .level-pill {
+      border-radius: 14px; padding: 16px 18px;
+      border: 1px solid; display: flex; flex-direction: column; gap: 4px;
+    }
+    .level-pill .lp-name { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 700; }
+    .level-pill .lp-num  { font-family: 'Fira Code', monospace; font-size: 11px; opacity: 0.6; }
+    .level-pill .lp-desc { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+
+    .lp-debug    { background: rgba(100,116,139,0.06); border-color: #475569; }
+    .lp-debug .lp-name    { color: #94a3b8; }
+    .lp-info     { background: rgba(56,189,248,0.06); border-color: #0ea5e9; }
+    .lp-info .lp-name     { color: #38bdf8; }
+    .lp-warning  { background: rgba(251,191,36,0.06); border-color: #d97706; }
+    .lp-warning .lp-name  { color: #fbbf24; }
+    .lp-error    { background: rgba(244,63,94,0.06); border-color: #e11d48; }
+    .lp-error .lp-name    { color: #fb7185; }
+    .lp-critical { background: rgba(220,38,38,0.08); border-color: #dc2626; }
+    .lp-critical .lp-name { color: #f87171; }
+
+    /* Output strip */
+    .output-strip { background: #010409; border: 1px solid #1e293b; border-radius: 10px; padding: 14px 20px; margin-top: -10px; margin-bottom: 25px; }
+    .out-label { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--v3c); letter-spacing: 0.08em; margin-bottom: 6px; display: block; }
+    .output-strip pre { padding: 0; font-size: 13px; }
+
+    table { width: 100%; border-collapse: collapse; margin: 25px 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 12px 18px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(255,255,255,0.03); color: #fff; font-weight: 600; font-size: 14px; }
+    td { color: var(--text2); font-size: 14px; }
+    tr:last-child td { border-bottom: none; }
+
+    ul, ol { margin-left: 24px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    li strong { color: #fff; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 6px; color: var(--v1c); font-size: 14px; }
+
+    footer { text-align: center; padding: 40px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; margin-top: 60px; }
+
+    .copy-btn {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--text3); padding: 4px 10px; border-radius: 6px; font-size: 11px;
+      cursor: pointer; transition: all 0.2s; margin-left: 15px;
+      font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 5px;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.08); color: var(--v1c); border-color: var(--v1c); }
+    .copy-btn.copied { color: var(--v3c); border-color: var(--v3c); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="tag">Python Masterclass</span>
+    <h1>Logging &amp; <span class="highlight">Debugging</span></h1>
+    <p class="desc">A complete, example-driven guide to Python's built-in <code>logging</code> module — understand every level, configure handlers, and debug with <code>pdb</code>.</p>
+  </header>
+
+  <!-- ── SECTION 1 : What is Logging ─────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is Logging &amp; Why Do We Need It?</h2>
+
+    <p class="text-block">
+      Logging is the process of <strong>recording events that happen while your program runs</strong>.
+      When a function is called, when a database query succeeds, when a network request fails —
+      all of these can be logged so that you (or a server admin) can look at the record later and understand
+      what happened, and <strong>when</strong> it happened.
+    </p>
+
+    <div class="concept-box">
+      <span class="box-label">🗂️ Think of it like a hospital chart</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        Every time a patient has a check-up, the doctor writes it down in a chart — time, observations, medicines given.
+        When something goes wrong, doctors don't rely on memory; they open the chart.
+        <br><br>
+        Your Python program's <strong>log file is that chart</strong>. Every significant event is written down automatically in the background so you can diagnose problems without guessing.
+      </p>
+    </div>
+
+    <h3>Python's built-in <code>logging</code> Module</h3>
+    <p class="text-block">
+      Python ships with a ready-to-use <code>logging</code> module. You don't need to install anything.
+      It lets you record messages of different severity levels, route them to different destinations
+      (terminal, file, email, etc.), and filter which messages appear based on how serious they are.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">import_logging.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>   <span class="cm"># built-in, no pip needed</span>
+
+<span class="cm"># The simplest possible log message</span>
+<span class="fn">logging</span>.warning(<span class="st">"Something unusual happened!"</span>)
+
+<span class="cm"># Output:</span>
+<span class="cm"># WARNING:root:Something unusual happened!</span></pre>
+    </div>
+
+    <p class="text-block">
+      The format <code>WARNING:root:…</code> means:
+      <strong>level</strong> → <strong>logger name</strong> → <strong>message</strong>.
+      The logger named <code>root</code> is the default global logger.
+    </p>
+  </div>
+
+  <!-- ── SECTION 2 : The 5 Levels ────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> The 5 Logging Levels</h2>
+
+    <p class="text-block">
+      Every log message must carry a <strong>severity level</strong>.
+      Python provides five built-in levels in increasing order of seriousness:
+    </p>
+
+    <div class="level-grid">
+      <div class="level-pill lp-debug">
+        <span class="lp-name">DEBUG</span>
+        <span class="lp-desc">Fine-grained diagnostic info</span>
+      </div>
+      <div class="level-pill lp-info">
+        <span class="lp-name">INFO</span>
+        <span class="lp-desc">Confirming things work fine</span>
+      </div>
+      <div class="level-pill lp-warning">
+        <span class="lp-name">WARNING</span>
+        <span class="lp-desc">Something unexpected, but ok</span>
+      </div>
+      <div class="level-pill lp-error">
+        <span class="lp-name">ERROR</span>
+        <span class="lp-desc">A real failure occurred</span>
+      </div>
+      <div class="level-pill lp-critical">
+        <span class="lp-name">CRITICAL</span>
+        <span class="lp-desc">System may not survive this</span>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <span class="tip-label">💡 The Filtering Rule &amp; Thresholds</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:10px;">
+        The logging system operates on a <strong>minimum level threshold</strong>. 
+        Think of the threshold like a <strong>"height filter" at an amusement park ride</strong>:
+      </p>
+      <ul style="margin-left: 20px; margin-bottom: 12px; color: var(--text2);">
+        <li>Only log messages that are <strong>at least as high/severe</strong> as the threshold are allowed to pass through and be recorded.</li>
+        <li>Any log message that is <strong>lower/less severe</strong> than the threshold is silently blocked and ignored.</li>
+      </ul>
+      <p class="text-block" style="color:var(--text2); margin-bottom:0;">
+        By default, Python's threshold is set to <strong>WARNING</strong>. 
+        Since <code>DEBUG</code> and <code>INFO</code> are lower in severity than WARNING, they are blocked and <strong>hidden by default</strong> until you explicitly configure the logging system to a lower threshold (like <code>logging.DEBUG</code>).
+      </p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3 : DEBUG ──────────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> DEBUG</h2>
+
+    <p class="text-block">
+      <strong>DEBUG</strong> is the most verbose level. You use it to record internal, step-by-step details
+      that help you understand exactly what the code is doing during development.
+      In production you normally turn DEBUG off — it's too noisy.
+    </p>
+
+    <h3>When to use DEBUG?</h3>
+    <ul>
+      <li>Logging the value of variables inside a loop.</li>
+      <li>Tracking which branch of an <code>if</code> statement was taken.</li>
+      <li>Watching each step of a complex algorithm as it runs.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">debug_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>
+
+<span class="cm"># Lower the threshold so DEBUG messages appear</span>
+<span class="fn">logging</span>.basicConfig(<span class="var_">level</span><span class="op">=</span><span class="fn">logging</span>.DEBUG)
+
+<span class="kw">def</span> <span class="fn">calculate_total</span>(<span class="var_">prices</span>):
+    <span class="fn">logging</span>.debug(<span class="st">"calculate_total() called with: %s"</span>, <span class="var_">prices</span>)
+    <span class="var_">total</span> <span class="op">=</span> <span class="nm">0</span>
+    <span class="kw">for</span> <span class="var_">i</span>, <span class="var_">price</span> <span class="kw">in</span> <span class="bi">enumerate</span>(<span class="var_">prices</span>):
+        <span class="fn">logging</span>.debug(<span class="st">"  Step %d → adding %.2f, running total = %.2f"</span>, <span class="var_">i</span>, <span class="var_">price</span>, <span class="var_">total</span>)
+        <span class="var_">total</span> <span class="op">+=</span> <span class="var_">price</span>
+    <span class="fn">logging</span>.debug(<span class="st">"Final total = %.2f"</span>, <span class="var_">total</span>)
+    <span class="kw">return</span> <span class="var_">total</span>
+
+<span class="var_">cart</span> <span class="op">=</span> [<span class="nm">49.99</span>, <span class="nm">15.00</span>, <span class="nm">8.50</span>]
+<span class="fn">calculate_total</span>(<span class="var_">cart</span>)</pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ OUTPUT</span>
+      <pre><span class="out">DEBUG:root:calculate_total() called with: [49.99, 15.0, 8.5]
+DEBUG:root:  Step 0 → adding 49.99, running total = 0.00
+DEBUG:root:  Step 1 → adding 15.00, running total = 49.99
+DEBUG:root:  Step 2 → adding 8.50, running total = 64.99
+DEBUG:root:Final total = 73.49</span></pre>
+    </div>
+
+    <p class="text-block">
+      Every single step of the loop is now visible. If someone reports a wrong total you can
+      replay exactly what happened — no guesswork needed.
+    </p>
+  </div>
+
+  <!-- ── SECTION 4 : INFO ───────────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> INFO</h2>
+
+    <p class="text-block">
+      <strong>INFO</strong> is used to confirm that major milestones in your program completed successfully.
+      Think of it as a "progress report" — not noisy internal details, but meaningful checkpoints.
+    </p>
+
+    <h3>When to use INFO?</h3>
+    <ul>
+      <li>Server started / stopped.</li>
+      <li>User logged in successfully.</li>
+      <li>A background job completed.</li>
+      <li>A file was downloaded or saved.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">info_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>
+
+<span class="fn">logging</span>.basicConfig(<span class="var_">level</span><span class="op">=</span><span class="fn">logging</span>.INFO)
+
+<span class="kw">def</span> <span class="fn">start_server</span>(<span class="var_">host</span>, <span class="var_">port</span>):
+    <span class="fn">logging</span>.info(<span class="st">"Server starting on %s:%d"</span>, <span class="var_">host</span>, <span class="var_">port</span>)
+    <span class="cm"># ... actual server setup code ...</span>
+    <span class="fn">logging</span>.info(<span class="st">"Server is now listening for connections."</span>)
+
+<span class="kw">def</span> <span class="fn">login_user</span>(<span class="var_">username</span>):
+    <span class="cm"># ... authentication logic ...</span>
+    <span class="fn">logging</span>.info(<span class="st">"User '%s' logged in successfully."</span>, <span class="var_">username</span>)
+
+<span class="kw">def</span> <span class="fn">process_order</span>(<span class="var_">order_id</span>):
+    <span class="cm"># ... order processing ...</span>
+    <span class="fn">logging</span>.info(<span class="st">"Order #%s has been processed and queued for dispatch."</span>, <span class="var_">order_id</span>)
+
+<span class="fn">start_server</span>(<span class="st">"0.0.0.0"</span>, <span class="nm">8080</span>)
+<span class="fn">login_user</span>(<span class="st">"amit_dhakad"</span>)
+<span class="fn">process_order</span>(<span class="st">"ORD-9921"</span>)</pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ OUTPUT</span>
+      <pre><span class="out">INFO:root:Server starting on 0.0.0.0:8080
+INFO:root:Server is now listening for connections.
+INFO:root:User 'amit_dhakad' logged in successfully.
+INFO:root:Order #ORD-9921 has been processed and queued for dispatch.</span></pre>
+    </div>
+
+    <p class="text-block">
+      Reading this log tells the complete story of what the system did, without overwhelming detail.
+      A DevOps engineer checking server logs at the end of the day sees a clean audit trail.
+    </p>
+  </div>
+
+  <!-- ── SECTION 5 : WARNING ────────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> WARNING</h2>
+
+    <p class="text-block">
+      <strong>WARNING</strong> means something unexpected happened, but the program was still able to
+      continue running. It's a signal that you should look into this — something <em>might</em> become
+      a problem if ignored.
+    </p>
+    <p class="text-block">
+      This is the <strong>default minimum level</strong>, so WARNING messages always show up unless
+      you explicitly change the threshold.
+    </p>
+
+    <h3>When to use WARNING?</h3>
+    <ul>
+      <li>A config value is missing, so a default is being used instead.</li>
+      <li>A deprecated API or function is being called.</li>
+      <li>A retry attempt was needed because the first request timed out.</li>
+      <li>Disk space is getting low but the system still works.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">warning_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>
+
+<span class="fn">logging</span>.basicConfig(<span class="var_">level</span><span class="op">=</span><span class="fn">logging</span>.WARNING)
+
+<span class="kw">def</span> <span class="fn">get_config</span>(<span class="var_">key</span>, <span class="var_">config</span>):
+    <span class="kw">if</span> <span class="var_">key</span> <span class="kw">not in</span> <span class="var_">config</span>:
+        <span class="cm"># Missing key — using a default. Program still works, but someone should notice.</span>
+        <span class="fn">logging</span>.warning(<span class="st">"Config key '%s' not found. Falling back to default value."</span>, <span class="var_">key</span>)
+        <span class="kw">return</span> <span class="st">"default"</span>
+    <span class="kw">return</span> <span class="var_">config</span>[<span class="var_">key</span>]
+
+<span class="kw">def</span> <span class="fn">connect_to_db</span>(<span class="var_">retries</span><span class="op">=</span><span class="nm">0</span>):
+    <span class="kw">if</span> <span class="var_">retries</span> <span class="op">&gt;</span> <span class="nm">0</span>:
+        <span class="fn">logging</span>.warning(<span class="st">"DB connection failed. Retrying... (attempt %d)"</span>, <span class="var_">retries</span>)
+    <span class="cm"># ... connection logic ...</span>
+
+<span class="kw">def</span> <span class="fn">old_api</span>():
+    <span class="fn">logging</span>.warning(<span class="st">"old_api() is deprecated. Use new_api() instead."</span>)
+    <span class="cm"># ... old logic ...</span>
+
+<span class="var_">settings</span> <span class="op">=</span> {<span class="st">"host"</span>: <span class="st">"localhost"</span>}
+<span class="fn">get_config</span>(<span class="st">"timeout"</span>, <span class="var_">settings</span>)   <span class="cm"># "timeout" key is missing</span>
+<span class="fn">connect_to_db</span>(<span class="var_">retries</span><span class="op">=</span><span class="nm">2</span>)
+<span class="fn">old_api</span>()</pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ OUTPUT</span>
+      <pre><span class="out">WARNING:root:Config key 'timeout' not found. Falling back to default value.
+WARNING:root:DB connection failed. Retrying... (attempt 2)
+WARNING:root:old_api() is deprecated. Use new_api() instead.</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6 : ERROR ──────────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">06</span> ERROR</h2>
+
+    <p class="text-block">
+      <strong>ERROR</strong> means something <em>actually went wrong</em>.
+      The program encountered a condition it could not handle, and a specific operation has failed.
+      The program can still keep running, but this event needs immediate attention.
+    </p>
+
+    <h3>When to use ERROR?</h3>
+    <ul>
+      <li>An exception was caught (e.g. file not found, network failure, DB error).</li>
+      <li>An API call returned an unexpected failure status code.</li>
+      <li>A payment transaction failed to complete.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">error_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>
+
+<span class="fn">logging</span>.basicConfig(
+    <span class="var_">level</span><span class="op">=</span><span class="fn">logging</span>.ERROR,
+    <span class="var_">format</span><span class="op">=</span><span class="st">"%(asctime)s - %(levelname)s - %(message)s"</span>
+)
+
+<span class="kw">def</span> <span class="fn">read_user_file</span>(<span class="var_">filepath</span>):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(<span class="var_">filepath</span>) <span class="kw">as</span> <span class="var_">f</span>:
+            <span class="kw">return</span> <span class="var_">f</span>.read()
+    <span class="kw">except</span> <span class="bi">FileNotFoundError</span> <span class="kw">as</span> <span class="var_">e</span>:
+        <span class="cm"># exc_info=True attaches the full traceback to the log!</span>
+        <span class="fn">logging</span>.error(<span class="st">"Could not read file '%s': %s"</span>, <span class="var_">filepath</span>, <span class="var_">e</span>, <span class="var_">exc_info</span><span class="op">=</span><span class="bi">True</span>)
+        <span class="kw">return</span> <span class="bi">None</span>
+
+<span class="kw">def</span> <span class="fn">charge_customer</span>(<span class="var_">amount</span>):
+    <span class="kw">if</span> <span class="var_">amount</span> <span class="op">&lt;=</span> <span class="nm">0</span>:
+        <span class="fn">logging</span>.error(<span class="st">"Invalid charge amount: %.2f. Transaction aborted."</span>, <span class="var_">amount</span>)
+        <span class="kw">return</span> <span class="bi">False</span>
+    <span class="cm"># ... charge logic ...</span>
+    <span class="kw">return</span> <span class="bi">True</span>
+
+<span class="fn">read_user_file</span>(<span class="st">"missing_report.csv"</span>)
+<span class="fn">charge_customer</span>(<span class="op">-</span><span class="nm">50</span>)</pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ OUTPUT</span>
+      <pre><span class="out">2026-05-27 10:12:44,110 - ERROR - Could not read file 'missing_report.csv': [Errno 2] No such file or directory: 'missing_report.csv'
+Traceback (most recent call last):
+  File "error_example.py", line 10, in read_user_file
+    with open(filepath) as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'missing_report.csv'
+2026-05-27 10:12:44,111 - ERROR - Invalid charge amount: -50.00. Transaction aborted.</span></pre>
+    </div>
+
+    <div class="concept-box">
+      <span class="box-label">🔍 exc_info=True</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        Passing <code>exc_info=True</code> to any logging call automatically appends the <strong>full stack traceback</strong> of the current exception to your log message — invaluable when diagnosing production failures.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7 : CRITICAL ───────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">07</span> CRITICAL</h2>
+
+    <p class="text-block">
+      <strong>CRITICAL</strong> is the highest severity. It means a catastrophic failure has occurred.
+      The program almost certainly <em>cannot continue</em> to operate correctly.
+      This should trigger immediate alerts — wake someone up at 3 AM serious.
+    </p>
+
+    <h3>When to use CRITICAL?</h3>
+    <ul>
+      <li>The database connection pool has been exhausted — the whole service is down.</li>
+      <li>The application has run completely out of memory.</li>
+      <li>A required configuration file is completely missing at startup.</li>
+      <li>A security breach or data corruption has been detected.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">critical_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>
+<span class="kw">import</span> <span class="fn">sys</span>
+
+<span class="fn">logging</span>.basicConfig(
+    <span class="var_">level</span><span class="op">=</span><span class="fn">logging</span>.DEBUG,
+    <span class="var_">format</span><span class="op">=</span><span class="st">"%(asctime)s [%(levelname)s] %(message)s"</span>
+)
+
+<span class="kw">def</span> <span class="fn">load_app_config</span>(<span class="var_">path</span>):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(<span class="var_">path</span>) <span class="kw">as</span> <span class="var_">f</span>:
+            <span class="kw">return</span> <span class="var_">f</span>.read()
+    <span class="kw">except</span> <span class="bi">FileNotFoundError</span>:
+        <span class="fn">logging</span>.critical(
+            <span class="st">"STARTUP FAILED: Config file '%s' not found. "</span>
+            <span class="st">"The application cannot start without it."</span>,
+            <span class="var_">path</span>
+        )
+        <span class="var_">sys</span>.exit(<span class="nm">1</span>)  <span class="cm"># Shut down immediately — there's no recovering from this</span>
+
+<span class="kw">def</span> <span class="fn">check_db_pool</span>(<span class="var_">available_connections</span>):
+    <span class="kw">if</span> <span class="var_">available_connections</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="fn">logging</span>.critical(
+            <span class="st">"Database connection pool exhausted! All %d connections are in use."</span>
+            <span class="st">" Service is DOWN."</span>,
+            <span class="nm">100</span>
+        )
+        <span class="cm"># Here you'd send an emergency alert (PagerDuty, SMS, etc.)</span>
+
+<span class="fn">check_db_pool</span>(<span class="nm">0</span>)
+<span class="fn">load_app_config</span>(<span class="st">"config/settings.yaml"</span>)  <span class="cm"># File doesn't exist</span></pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ OUTPUT</span>
+      <pre><span class="out">2026-05-27 10:15:01,200 [CRITICAL] Database connection pool exhausted! All 100 connections are in use. Service is DOWN.
+2026-05-27 10:15:01,201 [CRITICAL] STARTUP FAILED: Config file 'config/settings.yaml' not found. The application cannot start without it.</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8 : basicConfig & Formatting ──────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">08</span> Configuring Logging — basicConfig()</h2>
+
+    <p class="text-block">
+      <code>logging.basicConfig()</code> is the quickest way to set up the logging system for a whole script.
+      Call it <strong>once at the top</strong> of your program before any log calls.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Purpose</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>level</code></td><td>Minimum severity to record</td><td><code>logging.DEBUG</code></td></tr>
+        <tr><td><code>filename</code></td><td>Write logs to a file instead of console</td><td><code>"app.log"</code></td></tr>
+        <tr><td><code>filemode</code></td><td><code>"w"</code> overwrite, <code>"a"</code> append</td><td><code>"a"</code></td></tr>
+        <tr><td><code>format</code></td><td>Layout template for each line</td><td>see below</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Useful Format Tokens</h3>
+    <ul>
+      <li><code>%(asctime)s</code> — timestamp when the log was created</li>
+      <li><code>%(levelname)s</code> — e.g. DEBUG, INFO, WARNING</li>
+      <li><code>%(name)s</code> — name of the logger (default: <code>root</code>)</li>
+      <li><code>%(filename)s</code> — source file name</li>
+      <li><code>%(lineno)d</code> — line number in the source file</li>
+      <li><code>%(message)s</code> — the actual log message</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">basicconfig_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>
+
+<span class="fn">logging</span>.basicConfig(
+    <span class="var_">level</span><span class="op">=</span><span class="fn">logging</span>.DEBUG,
+    <span class="var_">filename</span><span class="op">=</span><span class="st">"app.log"</span>,
+    <span class="var_">filemode</span><span class="op">=</span><span class="st">"a"</span>,
+    <span class="var_">format</span><span class="op">=</span><span class="st">"%(asctime)s | %(levelname)-8s | %(filename)s:%(lineno)d | %(message)s"</span>
+)
+
+<span class="fn">logging</span>.debug(<span class="st">"Connecting to the database..."</span>)
+<span class="fn">logging</span>.info(<span class="st">"Connection pool established."</span>)
+<span class="fn">logging</span>.warning(<span class="st">"Response time exceeded 2s threshold."</span>)
+<span class="fn">logging</span>.error(<span class="st">"Query timed out on table 'orders'."</span>)
+<span class="fn">logging</span>.critical(<span class="st">"Disk full! Cannot write logs or data."</span>)
+
+<span class="cm"># ─── Contents of app.log ─────────────────────────────────────────────</span>
+<span class="cm"># 2026-05-27 10:30:01,100 | DEBUG    | basicconfig_example.py:12 | Connecting to the database...</span>
+<span class="cm"># 2026-05-27 10:30:01,101 | INFO     | basicconfig_example.py:13 | Connection pool established.</span>
+<span class="cm"># 2026-05-27 10:30:01,101 | WARNING  | basicconfig_example.py:14 | Response time exceeded 2s threshold.</span>
+<span class="cm"># 2026-05-27 10:30:01,102 | ERROR    | basicconfig_example.py:15 | Query timed out on table 'orders'.</span>
+<span class="cm"># 2026-05-27 10:30:01,102 | CRITICAL | basicconfig_example.py:16 | Disk full! Cannot write logs or data.</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 9 : Named Loggers + Handlers ──────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">09</span> Named Loggers &amp; Handlers (Professional Pattern)</h2>
+
+    <p class="text-block">
+      In real projects that have multiple modules, every file should create its <strong>own logger</strong>
+      using <code>logging.getLogger(__name__)</code>.
+      This embeds the module path in every log line, so you immediately know where a message came from.
+    </p>
+    <p class="text-block">
+      <strong>Handlers</strong> control where log records are <em>sent</em>.
+      You can attach several handlers to one logger — for example, send <code>INFO+</code> to the console
+      but save <em>everything</em> (DEBUG+) to a file.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">named_logger.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">logging</span>
+
+<span class="cm"># 1. Create a logger specifically for this module</span>
+<span class="var_">logger</span> <span class="op">=</span> <span class="fn">logging</span>.getLogger(<span class="st">"ecommerce.payments"</span>)
+<span class="var_">logger</span>.setLevel(<span class="fn">logging</span>.DEBUG)   <span class="cm"># logger itself catches everything</span>
+
+<span class="cm"># 2. Console handler — shows INFO and above only</span>
+<span class="var_">console</span> <span class="op">=</span> <span class="fn">logging</span>.StreamHandler()
+<span class="var_">console</span>.setLevel(<span class="fn">logging</span>.INFO)
+<span class="var_">console</span>.setFormatter(<span class="fn">logging</span>.Formatter(<span class="st">"[%(levelname)s] %(name)s → %(message)s"</span>))
+
+<span class="cm"># 3. File handler — saves DEBUG and above to disk</span>
+<span class="var_">file_h</span> <span class="op">=</span> <span class="fn">logging</span>.FileHandler(<span class="st">"payments.log"</span>, <span class="st">"a"</span>)
+<span class="var_">file_h</span>.setLevel(<span class="fn">logging</span>.DEBUG)
+<span class="var_">file_h</span>.setFormatter(<span class="fn">logging</span>.Formatter(<span class="st">"%(asctime)s | %(levelname)s | %(message)s"</span>))
+
+<span class="cm"># 4. Attach both handlers to the logger</span>
+<span class="var_">logger</span>.addHandler(<span class="var_">console</span>)
+<span class="var_">logger</span>.addHandler(<span class="var_">file_h</span>)
+
+<span class="cm"># ─── Usage ───────────────────────────────────────────────────────────</span>
+<span class="var_">logger</span>.debug(<span class="st">"Building payment payload for order #7731"</span>)  <span class="cm"># FILE only</span>
+<span class="var_">logger</span>.info(<span class="st">"Payment of ₹1,499 processed successfully."</span>)   <span class="cm"># CONSOLE + FILE</span>
+<span class="var_">logger</span>.error(<span class="st">"Bank gateway timeout — payment pending."</span>)    <span class="cm"># CONSOLE + FILE</span></pre>
+    </div>
+
+    <div class="output-strip">
+      <span class="out-label">▶ CONSOLE</span>
+      <pre><span class="out">[INFO]  ecommerce.payments → Payment of ₹1,499 processed successfully.
+[ERROR] ecommerce.payments → Bank gateway timeout — payment pending.</span></pre>
+    </div>
+    <div class="output-strip">
+      <span class="out-label">▶ payments.log</span>
+      <pre><span class="out">2026-05-27 10:45:00,300 | DEBUG | Building payment payload for order #7731
+2026-05-27 10:45:00,301 | INFO  | Payment of ₹1,499 processed successfully.
+2026-05-27 10:45:00,302 | ERROR | Bank gateway timeout — payment pending.</span></pre>
+    </div>
+  </div>
+
+  <!-- ── SECTION 10 : Debugging with pdb ───────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">10</span> Interactive Debugging with <code>pdb</code></h2>
+
+    <p class="text-block">
+      Logging tells you what happened. But sometimes you need to <strong>pause execution and explore live</strong>.
+      Python's built-in debugger <code>pdb</code> lets you freeze the program mid-run and inspect everything interactively.
+    </p>
+
+    <h3>Starting the debugger — <code>breakpoint()</code></h3>
+    <p class="text-block">
+      Place <code>breakpoint()</code> anywhere in your code. When Python hits that line, execution pauses and
+      you get an interactive <code>(Pdb)</code> prompt in the terminal.
+    </p>
+
+    <table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>l</code> / <code>list</code></td><td>Show surrounding source lines so you can see where you are.</td></tr>
+        <tr><td><code>n</code> / <code>next</code></td><td>Run the current line, then pause at the next line (stays in current function).</td></tr>
+        <tr><td><code>s</code> / <code>step</code></td><td>Step <em>into</em> any function called on the current line.</td></tr>
+        <tr><td><code>c</code> / <code>continue</code></td><td>Resume running until the next breakpoint (or end of program).</td></tr>
+        <tr><td><code>p &lt;expr&gt;</code></td><td>Print the value of any variable or expression.</td></tr>
+        <tr><td><code>pp &lt;expr&gt;</code></td><td>Pretty-print (useful for dicts/lists).</td></tr>
+        <tr><td><code>q</code> / <code>quit</code></td><td>Exit the debugger and kill the program immediately.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">pdb_demo.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">apply_discount</span>(<span class="var_">price</span>, <span class="var_">pct</span>):
+    <span class="cm"># Bug: divides by 10 instead of 100 — result will be wrong</span>
+    <span class="kw">return</span> <span class="var_">price</span> <span class="op">-</span> (<span class="var_">price</span> <span class="op">*</span> <span class="var_">pct</span> <span class="op">/</span> <span class="nm">10</span>)
+
+<span class="var_">original</span> <span class="op">=</span> <span class="nm">500</span>
+<span class="var_">discount</span> <span class="op">=</span> <span class="nm">20</span>  <span class="cm"># 20 percent</span>
+
+<span class="fn">breakpoint</span>()   <span class="cm"># ← Execution STOPS here, opens (Pdb) prompt</span>
+
+<span class="var_">result</span> <span class="op">=</span> <span class="fn">apply_discount</span>(<span class="var_">original</span>, <span class="var_">discount</span>)
+<span class="bi">print</span>(<span class="st">"Discounted price:"</span>, <span class="var_">result</span>)
+
+<span class="cm"># ─── Terminal Session ─────────────────────────────────────────────────
+#
+# > pdb_demo.py(9)&lt;module&gt;()
+# -> result = apply_discount(original, discount)
+#
+# (Pdb) p original        ← check variable
+# 500
+# (Pdb) p discount
+# 20
+# (Pdb) s                 ← step INTO apply_discount
+# --Call--
+# > pdb_demo.py(1)apply_discount()
+# (Pdb) n                 ← run the return line
+# > pdb_demo.py(3)apply_discount()
+# -> return price - (price * pct / 10)
+# (Pdb) p price * pct / 10
+# 1000.0                  ← AHA! Should be 100.0 (divide by 100, not 10)
+# (Pdb) q                 ← quit and fix the bug</span></pre>
+    </div>
+
+    <div class="tip-box">
+      <span class="tip-label">💡 Pro Tip — Remove breakpoints before shipping</span>
+      <p class="text-block" style="color:var(--text); margin-bottom:0;">
+        Always remove <code>breakpoint()</code> calls before committing your code.
+        If <code>breakpoint()</code> is accidentally left in production code, it will freeze the process
+        and wait for terminal input that will never come — effectively hanging your server.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 11 : Summary ───────────────────────────────────── -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">11</span> Summary Checklist</h2>
+    <div class="tip-box">
+      <span class="tip-label">💡 Quick Recap</span>
+      <ul>
+        <li><strong>logging module</strong>: Built-in. Use <code>import logging</code>. No pip needed.</li>
+        <li><strong>DEBUG</strong>: Fine-grained internal details. Use during development only.</li>
+        <li><strong>INFO</strong>: Successful milestones and checkpoints. Normal operation news.</li>
+        <li><strong>WARNING</strong>: Unexpected but recoverable. Something needs attention soon. Default threshold.</li>
+        <li><strong>ERROR</strong>: A real failure. A feature broke. Always pair with <code>exc_info=True</code> inside <code>except</code> blocks.</li>
+        <li><strong>CRITICAL</strong>: System-level catastrophe. Usually followed by <code>sys.exit()</code> or emergency alerts.</li>
+        <li><strong>basicConfig()</strong>: Call once, controls level, format, and output file for the whole script.</li>
+        <li><strong>getLogger(__name__)</strong>: Per-module loggers. Use in every file of a multi-module project.</li>
+        <li><strong>Handlers</strong>: Route the same logger to multiple destinations simultaneously.</li>
+        <li><strong>pdb / breakpoint()</strong>: Pause execution mid-run and explore variables interactively via <code>n</code>, <code>s</code>, <code>p</code>, <code>c</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = pre.innerHTML;
+    const text = tmp.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = `<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

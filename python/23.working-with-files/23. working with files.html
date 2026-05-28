@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with Files — Python Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --bg2: #0b0f19;
+      --bg3: #111827;
+      --card: #0f172a;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #f97316; /* Disk Storage Amber/Orange */
+      --v2c: #ec4899; /* Modern Rose Accent */
+      --v3c: #10b981; /* Success Green */
+      --v4c: #f43f5e; /* Warning Red */
+      --text: #f9fafb;
+      --text2: #9ca3af;
+      --text3: #4b5563;
+      --code-bg: #030712;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(249, 115, 22, 0.04) 1.5px, transparent 0);
+      background-size: 30px 30px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1020px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); text-shadow: 0 0 40px rgba(249, 115, 22, 0.2); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 750px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden;
+    }
+    .topic-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: linear-gradient(to bottom, var(--v1c), var(--v2c));
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 24px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(249, 115, 22, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 20px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(249, 115, 22, 0.03); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .warning-box {
+      background: rgba(244, 63, 94, 0.03); border-left: 4px solid var(--v4c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .warning-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v4c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .tip-box {
+      background: rgba(16, 185, 129, 0.03); border-left: 4px solid var(--v3c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .tip-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v3c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin: 30px 0; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; color: #e2e8f0; line-height: 1.6; }
+    
+    /* Code Highlighting Styles */
+    .kw { color: #f472b6; font-weight: 500; } /* keywords */
+    .fn { color: #38bdf8; } /* function/class names */
+    .st { color: #34d399; } /* strings */
+    .nm { color: #fb923c; } /* numbers */
+    .cm { color: #64748b; font-style: italic; } /* comments */
+    .bi { color: #a78bfa; } /* builtins */
+    .dec { color: #fb7185; font-weight: 600; } /* decorators */
+    .var_ { color: #e2e8f0; } /* variables */
+    .op { color: #94a3b8; } /* operators */
+    .self_ { color: #f43f5e; font-style: italic; } /* self */
+
+    .table-container { overflow-x: auto; margin: 35px 0; border: 1px solid var(--border); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+    th { background: rgba(255,255,255,0.02); color: #fff; padding: 16px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.01); }
+
+    ul, ol { margin-left: 24px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 10px; }
+    li strong { color: #fff; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 6px; color: var(--v1c); font-size: 14px; }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; margin-top: 80px; }
+    
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 06 · File Systems</span>
+    <h1>Mastering File I/O in <span class="highlight">Python</span></h1>
+    <p class="desc">A definitive guide to reading, writing, navigating, and safely managing files using context managers, stream controls, and error handling in Python.</p>
+  </header>
+
+  <!-- SECTION 1 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> The Core Concept: Why Disk Persistence?</h2>
+    <p class="text-block">
+      Variables, lists, and class instances exist only in your system's temporary memory (RAM). The moment your script finishes executing or your computer powers down, that data vanishes.
+    </p>
+    <p class="text-block">
+      To build persistent applications, you must move data from volatile RAM to non-volatile disk storage. Python abstracts files as <strong>streams</strong>. When you open a file, Python sets up a communication pipe between your program and the OS file system, allowing you to read or write chunks of data.
+    </p>
+    <p class="text-block">
+      The built-in <strong><code>open()</code></strong> function is the gatekeeper. It takes a file path, a mode character, and an optional text encoding, returning a stream-like <strong>file object</strong>.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">🔌 Real-World Analogy: The Tape Recorder</span>
+      <div class="rl-text">
+        Think of standard file handling like an old-school cassette tape recorder:
+        <br><br>
+        1. <strong>Insert the tape:</strong> Opening a file with <code>open()</code>.
+        <br>
+        2. <strong>Decide mode:</strong> Are you playing the tape (Read <code>'r'</code>) or recording over it (Write <code>'w'</code>)?
+        <br>
+        3. <strong>The playhead:</strong> Python has an internal cursor (the file pointer) showing exactly where you are currently reading or writing.
+        <br>
+        4. <strong>Eject:</strong> Closing the file with <code>close()</code> so that other programs can use it.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> Working Directories: Checking and Changing Paths</h2>
+    <p class="text-block">
+      Before opening or saving files, it is vital to know <strong>where</strong> your Python script is currently looking. This root folder is called the <strong>Current Working Directory (CWD)</strong>.
+    </p>
+    <p class="text-block">
+      If you open a file using a relative path like <code>open("data.txt")</code>, Python automatically prefixes it with the CWD behind the scenes.
+    </p>
+    <p class="text-block">
+      Python provides two major libraries to inspect and update the working directory: the traditional <strong><code>os</code></strong> module, and the modern object-oriented <strong><code>pathlib</code></strong> module (introduced in Python 3.4).
+    </p>
+
+    <ul>
+      <li><strong>Check Current Directory:</strong> Retrieve the absolute path of the CWD using <code>os.getcwd()</code> or <code>Path.cwd()</code>.</li>
+      <li><strong>Change Working Directory:</strong> Instruct Python to look inside a different folder using <code>os.chdir(new_path)</code>.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">directory_navigation.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">os</span>
+<span class="kw">from</span> <span class="fn">pathlib</span> <span class="kw">import</span> <span class="var_">Path</span>
+
+<span class="cm"># ==========================================</span>
+<span class="cm"># Method 1: The Traditional 'os' Module Way</span>
+<span class="cm"># ==========================================</span>
+
+<span class="cm"># 1. Check current working directory</span>
+<span class="var_">current_dir</span> <span class="op">=</span> <span class="fn">os</span>.getcwd()
+<span class="bi">print</span>(<span class="st">f"CWD (os): {current_dir}"</span>)
+
+<span class="cm"># 2. Change the working directory</span>
+<span class="fn">os</span>.chdir(<span class="st">"../"</span>)  <span class="cm"># Navigate one level up in the folder tree</span>
+<span class="bi">print</span>(<span class="st">f"New CWD (os): {os.getcwd()}"</span>)
+
+<span class="cm"># ==========================================</span>
+<span class="cm"># Method 2: The Modern OOP 'pathlib' Way</span>
+<span class="cm"># ==========================================</span>
+
+<span class="cm"># 1. Check current working directory</span>
+<span class="var_">pathlib_dir</span> <span class="op">=</span> <span class="var_">Path</span>.cwd()
+<span class="bi">print</span>(<span class="st">f"CWD (pathlib): {pathlib_dir}"</span>)
+
+<span class="cm"># 2. Path joining is much cleaner with / operator instead of string addition!</span>
+<span class="var_">target_file</span> <span class="op">=</span> <span class="var_">pathlib_dir</span> <span class="op">/</span> <span class="st">"subfolder"</span> <span class="op">/</span> <span class="st">"data.txt"</span>
+<span class="bi">print</span>(<span class="st">f"Absolute Target Path: {target_file}"</span>)</pre>
+    </div>
+
+    <div class="tip-box">
+      <span class="tip-label">⚡ Safe Practice Tip: Avoid Hardcoding Paths</span>
+      <p class="text-block" style="color:var(--text)">
+        Always prefer <strong>relative paths</strong> or path joining using <code>pathlib</code> instead of hardcoding absolute paths (e.g., <code>"C:\Users\name\Project\file.txt"</code>). Hardcoded paths will break immediately when your code is run on a colleague's machine, a Docker container, or a Linux staging server!
+      </p>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> File Operations: Renaming, Removing, and Copying</h2>
+    <p class="text-block">
+      Beyond reading and writing data, a production application must frequently perform file system maintenance: copying backup templates, renaming temporary log targets, and deleting stale caches.
+    </p>
+    <p class="text-block">
+      Python splits these tasks between three standard libraries: <strong><code>os</code></strong>, <strong><code>shutil</code></strong> (shell utilities), and <strong><code>pathlib</code></strong>.
+    </p>
+
+    <h3>1. Renaming Files & Folders</h3>
+    <p class="text-block">
+      To rename a file, use <code>os.rename()</code> or the OOP-based <code>Path.rename()</code>. If the target name already exists, Python will raise a <code>FileExistsError</code> on Windows or overwrite it silently on Unix systems.
+    </p>
+
+    <h3>2. Copying Files (with `shutil`)</h3>
+    <p class="text-block">
+      The standard <code>os</code> module does not contain high-level file copying utilities. Instead, we use the built-in <strong><code>shutil</code></strong> module:
+    </p>
+    <ul>
+      <li><strong><code>shutil.copy(src, dst)</code>:</strong> Copies the file data and its permissions. The destination can be a folder.</li>
+      <li><strong><code>shutil.copy2(src, dst)</code>:</strong> Copies the file data, permissions, AND all file metadata (like creation/modification timestamps). <strong>Always prefer this for backups!</strong></li>
+    </ul>
+
+    <h3>3. Deleting (Removing) Files</h3>
+    <p class="text-block">
+      To delete a file permanently from the disk, use <code>os.remove()</code> or <code>Path.unlink()</code>. To delete an empty folder, use <code>os.rmdir()</code> or <code>Path.rmdir()</code>.
+    </p>
+
+    <h3>4. Checking File Size</h3>
+    <p class="text-block">
+      To find out how large a file is (in bytes), you can use either the classic <code>os.path.getsize(path)</code> function or the modern, object-oriented <code>Path(path).stat().st_size</code> attribute. This is extremely useful for checking file size limits before performing uploads or processing large datasets.
+    </p>
+
+    <div class="warning-box">
+      <span class="warning-label">⚠️ WARNING: Deletions are Permanent</span>
+      <p class="text-block" style="color:var(--text)">
+        Calling <code>os.remove()</code> or <code>Path.unlink()</code> bypasses the Operating System's Recycle Bin or Trash completely. The data is instantly unlinked from the filesystem and is extremely difficult to recover!
+      </p>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">file_maintenance.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">os</span>
+<span class="kw">import</span> <span class="fn">shutil</span>
+<span class="kw">from</span> <span class="fn">pathlib</span> <span class="kw">import</span> <span class="var_">Path</span>
+
+<span class="cm"># Define target file paths</span>
+<span class="var_">original</span> <span class="op">=</span> <span class="var_">Path</span>(<span class="st">"test.txt"</span>)
+<span class="var_">copied</span> <span class="op">=</span> <span class="var_">Path</span>(<span class="st">"test_backup.txt"</span>)
+<span class="var_">renamed</span> <span class="op">=</span> <span class="var_">Path</span>(<span class="st">"final_report.txt"</span>)
+
+<span class="cm"># --- Preparation: Create a dummy file ---</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="var_">original</span>, <span class="st">"w"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">f</span>.write(<span class="st">"Hello, this is a file system test script."</span>)
+
+<span class="cm"># ==========================================</span>
+<span class="cm"># 1. COPYING (Using shutil.copy2)</span>
+<span class="cm"># ==========================================</span>
+<span class="kw">if</span> <span class="var_">original</span>.exists():
+    <span class="fn">shutil</span>.copy2(<span class="var_">original</span>, <span class="var_">copied</span>)
+    <span class="bi">print</span>(<span class="st">f"✔️ Copied '{original}' to '{copied}' (metadata preserved)."</span>)
+
+<span class="cm"># ==========================================</span>
+<span class="cm"># 2. RENAMING (Using pathlib)</span>
+<span class="cm"># ==========================================</span>
+<span class="kw">if</span> <span class="var_">copied</span>.exists():
+    <span class="var_">copied</span>.rename(<span class="var_">renamed</span>)
+    <span class="bi">print</span>(<span class="st">f"✔️ Renamed '{copied}' to '{renamed}'."</span>)
+
+<span class="cm"># ==========================================</span>
+<span class="cm"># 3. CHECKING FILE SIZE</span>
+<span class="cm"># ==========================================</span>
+<span class="kw">if</span> <span class="var_">renamed</span>.exists():
+    <span class="var_">size_os</span> <span class="op">=</span> <span class="fn">os</span>.path.getsize(<span class="var_">renamed</span>)
+    <span class="var_">size_pathlib</span> <span class="op">=</span> <span class="var_">renamed</span>.stat().st_size
+    <span class="bi">print</span>(<span class="st">f"📊 File Size via os: {size_os} bytes"</span>)
+    <span class="bi">print</span>(<span class="st">f"📊 File Size via pathlib: {size_pathlib} bytes"</span>)
+
+<span class="cm"># ==========================================</span>
+<span class="cm"># 4. REMOVING / DELETING (Safe Pattern)</span>
+<span class="cm"># ==========================================</span>
+<span class="kw">try</span>:
+    <span class="cm"># Safely delete the original file</span>
+    <span class="var_">original</span>.unlink()
+    <span class="bi">print</span>(<span class="st">f"✔️ Safely deleted original '{original}'."</span>)
+    
+    <span class="cm"># Safely delete the renamed file</span>
+    <span class="var_">renamed</span>.unlink()
+    <span class="bi">print</span>(<span class="st">f"✔️ Safely deleted renamed '{renamed}'."</span>)
+<span class="kw">except</span> <span class="bi">FileNotFoundError</span> <span class="kw">as</span> <span class="var_">e</span>:
+    <span class="bi">print</span>(<span class="st">f"❌ Delete failed: {e}"</span>)</pre>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> The Crucial Gold Standard: Context Managers</h2>
+    <p class="text-block">
+      In primitive Python code, developers open and close files manually:
+    </p>
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">manual_close_unsafe.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># ❌ INSECURE PRACTICE: Manual Close</span>
+<span class="var_">f</span> <span class="op">=</span> <span class="fn">open</span>(<span class="st">"data.txt"</span>, <span class="st">"r"</span>)
+<span class="var_">content</span> <span class="op">=</span> <span class="var_">f</span>.read()
+
+<span class="cm"># Imagine a dynamic computation happens here:</span>
+<span class="var_">result</span> <span class="op">=</span> <span class="nm">10</span> <span class="op">/</span> <span class="nm">0</span>  <span class="cm"># 💥 ZeroDivisionError is raised here!</span>
+
+<span class="cm"># ❌ CRITICAL: The script halts immediately! f.close() is NEVER executed!</span>
+<span class="var_">f</span>.close()</pre>
+    </div>
+    <p class="text-block">
+      If your script crashes <em>before</em> reaching <code>close()</code>, the file pointer remains locked, memory leaks, and other system processes may block when trying to access the file.
+    </p>
+    <p class="text-block">
+      The absolute <strong>gold standard</strong> in Python is the <strong><code>with</code> statement (Context Manager)</strong>. It guarantees that the file will be safely closed the millisecond execution leaves the code block, even if an unhandled crash or exception occurs!
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">context_manager_safe.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># ✔️ Pythonic Gold Standard: Context Manager</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"data.txt"</span>, <span class="st">"r"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">file</span>:
+    <span class="var_">data</span> <span class="op">=</span> <span class="var_">file</span>.read()
+    <span class="bi">print</span>(<span class="var_">data</span>)
+<span class="cm"># File is automatically closed here! No leaks possible.</span></pre>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Reading & Writing Operations</h2>
+    <p class="text-block">
+      Python gives you multiple ways to consume and write text streams. Choosing the wrong method can run your server out of RAM or corrupt your content.
+    </p>
+
+    <h3>Reading Files</h3>
+    <ul>
+      <li><strong><code>file.read()</code>:</strong> Reads the entire file into a single giant string. Use ONLY for small config files. Never use on huge multi-gigabyte logs!</li>
+      <li><strong><code>file.readline()</code>:</strong> Reads one line at a time. Returns an empty string <code>""</code> when the end of the file is reached.</li>
+      <li><strong><code>file.readlines()</code>:</strong> Reads the entire file and returns a list of strings (one per line).</li>
+      <li><strong>Direct Iteration (Best Practice):</strong> Iterating over the file object itself reads line-by-line lazily, holding only one line in RAM at any time!</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">reading_techniques.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># 1. Reading entire file (RAM intensive)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"names.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="bi">print</span>(<span class="var_">f</span>.read())
+
+<span class="cm"># 2. Reading line-by-line manually</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"names.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">line1</span> <span class="op">=</span> <span class="var_">f</span>.readline().strip()
+    <span class="var_">line2</span> <span class="op">=</span> <span class="var_">f</span>.readline().strip()
+    <span class="bi">print</span>(<span class="st">f"First name: {line1}, Second name: {line2}"</span>)
+
+<span class="cm"># 3. Memory-Efficient Lazy Stream (Production Standard!)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"huge_log_file.log"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="var_">log</span>:
+    <span class="kw">for</span> <span class="var_">line</span> <span class="kw">in</span> <span class="var_">log</span>:
+        <span class="kw">if</span> <span class="st">"ERROR"</span> <span class="kw">in</span> <span class="var_">line</span>:
+            <span class="bi">print</span>(<span class="var_">line</span>.strip())  <span class="cm"># Memory footprint is minimal!</span></pre>
+    </div>
+
+    <h3>Writing Files</h3>
+    <ul>
+      <li><strong><code>file.write(string)</code>:</strong> Writes a single string block to the file. Note that it does NOT append newlines automatically!</li>
+      <li><strong><code>file.writelines(iterable)</code>:</strong> Writes a list/tuple of strings sequentially. It also does NOT add automatic line breaks.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">writing_techniques.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># Writing over a file (Truncates any old content!)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"output.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">f</span>.write(<span class="st">"Python is amazing!</span><span class="kw">\n</span><span class="st">"</span>)
+    <span class="var_">f</span>.write(<span class="st">"Welcome to advanced IO.</span><span class="kw">\n</span><span class="st">"</span>)
+
+<span class="cm"># Appending details (Keeps old contents intact)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"output.txt"</span>, <span class="st">"a"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">f</span>.writelines([
+        <span class="st">"Line 3: Appended content</span><span class="kw">\n</span><span class="st">"</span>,
+        <span class="st">"Line 4: Another appended item</span><span class="kw">\n</span><span class="st">"</span>
+    ])</pre>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">06</span> Navigating the Stream: Seek and Tell</h2>
+    <p class="text-block">
+      When you read from a file, the system moves the playhead (file pointer) forward. Once you read a character, you cannot read it again unless you rewind the file stream.
+    </p>
+    <ul>
+      <li><strong><code>file.tell()</code>:</strong> Returns the integer representing the current byte index position of the file pointer.</li>
+      <li><strong><code>file.seek(offset, whence=0)</code>:</strong> Moves the file pointer by <code>offset</code> bytes. The optional <code>whence</code> parameter indicates starting from:
+        <ul>
+          <li><code>0</code>: Absolute start of file (default).</li>
+          <li><code>1</code>: Current position.</li>
+          <li><code>2</code>: End of the file.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">seek_and_tell.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># Write initial sample data</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"stream.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">f</span>.write(<span class="st">"abcdefgh"</span>)
+
+<span class="cm"># Experiment with the file pointer</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"stream.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="bi">print</span>(<span class="st">f"Starting pointer: {f.tell()}"</span>)  <span class="cm"># Output: 0</span>
+    
+    <span class="var_">char3</span> <span class="op">=</span> <span class="var_">f</span>.read(<span class="nm">3</span>)
+    <span class="bi">print</span>(<span class="st">f"Read 3 characters: '{char3}'"</span>)   <span class="cm"># Output: 'abc'</span>
+    <span class="bi">print</span>(<span class="st">f"Pointer index: {f.tell()}"</span>)       <span class="cm"># Output: 3</span>
+    
+    <span class="cm"># Rewind the file stream back to the absolute beginning</span>
+    <span class="var_">f</span>.seek(<span class="nm">0</span>)
+    <span class="bi">print</span>(<span class="st">f"After rewind pointer: {f.tell()}"</span>) <span class="cm"># Output: 0</span>
+    
+    <span class="cm"># Jump to byte index position 4</span>
+    <span class="var_">f</span>.seek(<span class="nm">4</span>)
+    <span class="bi">print</span>(<span class="st">f"Read remaining: '{f.read()}'"</span>)     <span class="cm"># Output: 'efgh'</span></pre>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">07</span> The Dangerous Trap: Character Encodings</h2>
+    <div class="warning-box">
+      <span class="warning-label">🚨 Trap: Implicit OS-Default Encoding Crash</span>
+      <p class="text-block" style="color:var(--text)">
+        When you run <code>open("file.txt", "r")</code> without specifying an <code>encoding</code>, Python falls back to your host Operating System's local default encoding!
+      </p>
+      <p class="text-block" style="color:var(--text)">
+        On standard Windows systems, this is usually <strong><code>cp1252</code></strong>. On macOS and Linux, it's <strong><code>utf-8</code></strong>.
+        If a user puts a modern emoji or structural non-ASCII character (e.g., 🚀, 💻, or Chinese text) into a file and you run it on Windows without specifying encoding, your code will crash immediately!
+      </p>
+
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">encoding_crash.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy
+          </button>
+        </div>
+        <pre><span class="cm"># ❌ CRITICAL BUG: Crashes on Windows systems if text contains Unicode!</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"unicode_log.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">data</span> <span class="op">=</span> <span class="var_">f</span>.read() 
+<span class="cm"># Error on Windows: UnicodeDecodeError: 'charmap' codec can't decode byte...</span>
+
+<span class="cm"># ✔️ PRODUCTION SAFE FIX: Always specify UTF-8 explicitly!</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"unicode_log.txt"</span>, <span class="st">"r"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+    <span class="var_">data</span> <span class="op">=</span> <span class="var_">f</span>.read()</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">08</span> Binary Mode: Working with raw Bytes</h2>
+    <p class="text-block">
+      Sometimes files do not contain text. Images, zipped archives, audio files, and executables contain compiled binary data. Reading these as strings will throw immediate decode errors.
+    </p>
+    <p class="text-block">
+      By appending a <strong><code>b</code></strong> to your mode (e.g., <code>"rb"</code> or <code>"wb"</code>), Python bypasses the encoding/decoding system completely. It reads the data directly into a <strong><code>bytes</code> object</strong> instead of a standard string.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">binary_copy.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="cm"># Reading and verifying the binary signature of a PNG image file</span>
+<span class="kw">def</span> <span class="fn">is_png_file</span>(<span class="var_">file_path</span>):
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="var_">file_path</span>, <span class="st">"rb"</span>) <span class="kw">as</span> <span class="var_">img</span>:
+        <span class="cm"># Read the first 8 bytes of the PNG file</span>
+        <span class="var_">header</span> <span class="op">=</span> <span class="var_">img</span>.read(<span class="nm">8</span>)
+        
+        <span class="cm"># Official standard PNG hexadecimal byte signature: 89 50 4E 47 0D 0A 1A 0A</span>
+        <span class="var_">png_signature</span> <span class="op">=</span> <span class="st">b"</span><span class="kw">\x89</span><span class="st">PNG</span><span class="kw">\r\n\x1a\n</span><span class="st">"</span>
+        <span class="kw">return</span> <span class="var_">header</span> <span class="op">==</span> <span class="var_">png_signature</span>
+
+<span class="cm"># High-Performance Binary File Copy Function</span>
+<span class="kw">def</span> <span class="fn">copy_binary_file</span>(<span class="var_">source</span>, <span class="var_">destination</span>):
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="var_">source</span>, <span class="st">"rb"</span>) <span class="kw">as</span> <span class="var_">src</span>, <span class="fn">open</span>(<span class="var_">destination</span>, <span class="st">"wb"</span>) <span class="kw">as</span> <span class="var_">dest</span>:
+        <span class="kw">while</span> <span class="bi">True</span>:
+            <span class="cm"># Read in 64KB chunks to prevent RAM overflow!</span>
+            <span class="var_">chunk</span> <span class="op">=</span> <span class="var_">src</span>.read(<span class="nm">65536</span>)
+            <span class="kw">if</span> <span class="kw">not</span> <span class="var_">chunk</span>:
+                <span class="kw">break</span>
+            <span class="var_">dest</span>.write(<span class="var_">chunk</span>)</pre>
+    </div>
+  </div>
+
+  <!-- SECTION 9 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">09</span> Cheat Sheet: Python File Mode Matrix</h2>
+    <p class="text-block">
+      This comparative reference matrix provides exact behaviors for every basic and advanced file mode character.
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Type</th>
+            <th>Creates File?</th>
+            <th>Truncates Content?</th>
+            <th>Stream Action</th>
+            <th>Pointer Start</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>"r"</code></td>
+            <td>Text</td>
+            <td>❌ No (Raises Error)</td>
+            <td>❌ No</td>
+            <td>Read Only</td>
+            <td>Beginning (0)</td>
+          </tr>
+          <tr>
+            <td><code>"w"</code></td>
+            <td>Text</td>
+            <td>✔️ Yes</td>
+            <td>✔️ Yes (Wipes Data)</td>
+            <td>Write Only</td>
+            <td>Beginning (0)</td>
+          </tr>
+          <tr>
+            <td><code>"a"</code></td>
+            <td>Text</td>
+            <td>✔️ Yes</td>
+            <td>❌ No</td>
+            <td>Append Only</td>
+            <td>End of File</td>
+          </tr>
+          <tr>
+            <td><code>"x"</code></td>
+            <td>Text</td>
+            <td>✔️ Yes (Raises error if exists)</td>
+            <td>❌ No</td>
+            <td>Exclusive Write</td>
+            <td>Beginning (0)</td>
+          </tr>
+          <tr>
+            <td><code>"r+"</code></td>
+            <td>Text</td>
+            <td>❌ No (Raises Error)</td>
+            <td>❌ No</td>
+            <td>Read and Write</td>
+            <td>Beginning (0)</td>
+          </tr>
+          <tr>
+            <td><code>"w+"</code></td>
+            <td>Text</td>
+            <td>✔️ Yes</td>
+            <td>✔️ Yes (Wipes Data)</td>
+            <td>Read and Write</td>
+            <td>Beginning (0)</td>
+          </tr>
+          <tr>
+            <td><code>"a+"</code></td>
+            <td>Text</td>
+            <td>✔️ Yes</td>
+            <td>❌ No</td>
+            <td>Read and Append</td>
+            <td>End of File</td>
+          </tr>
+          <tr>
+            <td><code>"rb"</code> / <code>"wb"</code></td>
+            <td>Binary</td>
+            <td>(Matches text modes behavior)</td>
+            <td>-</td>
+            <td>Raw Bytes Stream</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 10 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">10</span> Production-Grade Project: Config Backup Manager</h2>
+    <p class="text-block">
+      Let's combine all of these elements into a production-grade, highly resilient utility class: a <code>ConfigurationManager</code> that loads JSON settings, handles file exceptions cleanly, saves state atomically, and creates automatic timestamped backup logs.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">config_manager.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">json</span>
+<span class="kw">import</span> <span class="fn">os</span>
+<span class="kw">import</span> <span class="fn">time</span>
+
+<span class="kw">class</span> <span class="fn">ConfigurationManager</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self_">self</span>, <span class="var_">config_path</span>):
+        <span class="self_">self</span>.config_path <span class="op">=</span> <span class="var_">config_path</span>
+        <span class="self_">self</span>.settings <span class="op">=</span> {}
+        <span class="self_">self</span>.load_config()
+
+    <span class="kw">def</span> <span class="fn">load_config</span>(<span class="self_">self</span>):
+        <span class="cm"># Handle missing file exceptions gracefully</span>
+        <span class="kw">try</span>:
+            <span class="kw">with</span> <span class="fn">open</span>(<span class="self_">self</span>.config_path, <span class="st">"r"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+                <span class="self_">self</span>.settings <span class="op">=</span> <span class="fn">json</span>.load(<span class="var_">f</span>)
+                <span class="self_">self</span>.log_event(<span class="st">"Settings successfully loaded."</span>)
+        <span class="kw">except</span> <span class="bi">FileNotFoundError</span>:
+            <span class="self_">self</span>.log_event(<span class="st">"Config file not found. Initializing blank settings."</span>)
+            <span class="self_">self</span>.settings <span class="op">=</span> {}
+        <span class="kw">except</span> <span class="fn">json</span>.<span class="bi">JSONDecodeError</span>:
+            <span class="self_">self</span>.log_event(<span class="st">"Config file is corrupted! Loading empty state."</span>)
+            <span class="self_">self</span>.settings <span class="op">=</span> {}
+
+    <span class="kw">def</span> <span class="fn">set_value</span>(<span class="self_">self</span>, <span class="var_">key</span>, <span class="var_">value</span>):
+        <span class="self_">self</span>.settings[<span class="var_">key</span>] <span class="op">=</span> <span class="var_">value</span>
+        <span class="self_">self</span>.save_config()
+
+    <span class="kw">def</span> <span class="fn">save_config</span>(<span class="self_">self</span>):
+        <span class="kw">try</span>:
+            <span class="cm"># Atomic write: first save to temp file, then rename it</span>
+            <span class="var_">temp_path</span> <span class="op">=</span> <span class="self_">self</span>.config_path <span class="op">+</span> <span class="st">".tmp"</span>
+            <span class="kw">with</span> <span class="fn">open</span>(<span class="var_">temp_path</span>, <span class="st">"w"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">f</span>:
+                <span class="fn">json</span>.dump(<span class="self_">self</span>.settings, <span class="var_">f</span>, <span class="var_">indent</span><span class="op">=</span><span class="nm">4</span>)
+            
+            <span class="cm"># Swap temp file to active file</span>
+            <span class="fn">os</span>.replace(<span class="var_">temp_path</span>, <span class="self_">self</span>.config_path)
+            <span class="self_">self</span>.log_event(<span class="st">"Config file updated successfully."</span>)
+        <span class="kw">except</span> <span class="bi">PermissionError</span>:
+            <span class="self_">self</span>.log_event(<span class="st">"CRITICAL ERROR: Insufficient disk write permissions!"</span>)
+
+    <span class="kw">def</span> <span class="fn">log_event</span>(<span class="self_">self</span>, <span class="var_">message</span>):
+        <span class="cm"># Continuous log tracker using append mode ('a')</span>
+        <span class="var_">timestamp</span> <span class="op">=</span> <span class="fn">time</span>.strftime(<span class="st">"%Y-%m-%d %H:%M:%S"</span>)
+        <span class="kw">with</span> <span class="fn">open</span>(<span class="st">"system_events.log"</span>, <span class="st">"a"</span>, <span class="var_">encoding</span><span class="op">=</span><span class="st">"utf-8"</span>) <span class="kw">as</span> <span class="var_">log</span>:
+            <span class="var_">log</span>.write(<span class="st">f"[{timestamp}] {message}</span><span class="kw">\n</span><span class="st">"</span>)
+
+<span class="cm"># Execution Run:</span>
+<span class="var_">mgr</span> <span class="op">=</span> <span class="fn">ConfigurationManager</span>(<span class="st">"app_settings.json"</span>)
+<span class="var_">mgr</span>.set_value(<span class="st">"theme"</span>, <span class="st">"dark-mode"</span>)
+<span class="var_">mgr</span>.set_value(<span class="st">"database_port"</span>, <span class="nm">5432</span>)
+
+<span class="bi">print</span>(<span class="st">"Log checklist created in 'system_events.log'!"</span>)
+<span class="bi">print</span>(<span class="st">"Config file created in 'app_settings.json'!"</span>)</pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    
+    // Create temporary container to get plain text without HTML span structures
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = pre.innerHTML;
+    const text = tempElement.innerText;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

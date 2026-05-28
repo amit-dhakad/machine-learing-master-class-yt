@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Methods — Python OOP Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #f59e0b; /* Class Method Amber/Orange */
+      --v2c: #3b82f6; /* Static/Instance Blue */
+      --v3c: #10b981; /* Success Green */
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 700px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(245, 158, 11, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 30px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin-bottom: 40px;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; }
+    .kw { color: #c084fc; } .fn { color: #60a5fa; } .st { color: #86efac; } .nm { color: #fb923c; } .cm { color: #475569; font-style: italic; } .bi { color: #38bdf8; } .dec { color: #f472b6; } .var_ { color: #e2e8f0; } .op { color: #94a3b8; }
+
+    .table-container { overflow-x: auto; margin: 30px 0; border: 1px solid var(--border); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+    th { background: rgba(255,255,255,0.02); color: #fff; padding: 16px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.01); }
+
+    .rule-box {
+        background: rgba(59, 130, 246, 0.05); border: 1px dashed var(--v2c);
+        padding: 20px; border-radius: 12px; margin: 20px 0;
+    }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; }
+    
+    ul { margin-left: 20px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--v1c); }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 05 · OOP Advanced</span>
+    <h1>Mastering Class State with <span class="highlight">Class Methods</span></h1>
+    <p class="desc">Learn how to manipulate class-level data, implement alternative constructors, and understand the difference between instance, class, and static methods.</p>
+  </header>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is a Class Method?</h2>
+    <p class="text-block">
+      In Python, a <strong>Class Method</strong> is a method that is bound to the class itself rather than its individual instances. While instance methods receive `self` to access the unique instance, class methods receive <strong><code>cls</code></strong> as their first parameter, giving them direct access to class-level attributes and other class methods.
+    </p>
+    <p class="text-block">
+      We define a class method using Python's built-in <strong><code>@classmethod</code></strong> decorator. Since they belong to the class, they can be called directly using the class name (e.g., <code>ClassName.method_name()</code>) without instantiating any objects first.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">🏭 Real World Case: Factory Floor Manager</span>
+      <div class="rl-text">
+        Imagine a factory that manufactures smartphones. An <em>instance method</em> is like checking the battery percentage of a single smartphone you're holding. A <em>class method</em> is like asking the Factory Manager to change the global default operating system for ALL future smartphones built in that factory.
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> Modifying Class State</h2>
+    <p class="text-block">
+      The most straightforward use of a class method is to access or modify class-level variables (state) that are shared across all instances.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">class_state.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Student</span>:
+    <span class="var_">school_name</span> <span class="op">=</span> <span class="st">"Apex High School"</span>  <span class="cm"># Class variable</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">name</span>):
+        <span class="var_">self</span>.name <span class="op">=</span> name  <span class="cm"># Instance variable</span>
+
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">update_school</span>(<span class="fn">cls</span>, <span class="var_">new_name</span>):
+        <span class="fn">cls</span>.school_name <span class="op">=</span> <span class="var_">new_name</span>  <span class="cm"># Modifies the class variable</span>
+
+<span class="var_">s1</span> <span class="op">=</span> <span class="fn">Student</span>(<span class="st">"Alice"</span>)
+<span class="var_">s2</span> <span class="op">=</span> <span class="fn">Student</span>(<span class="st">"Bob"</span>)
+
+<span class="bi">print</span>(<span class="var_">s1</span>.school_name)  <span class="cm"># Output: Apex High School</span>
+<span class="bi">print</span>(<span class="var_">s2</span>.school_name)  <span class="cm"># Output: Apex High School</span>
+
+<span class="cm"># Call class method using the class name</span>
+<span class="fn">Student</span>.update_school(<span class="st">"Global Academy"</span>)
+
+<span class="bi">print</span>(<span class="var_">s1</span>.school_name)  <span class="cm"># Output: Global Academy (Updated for all!)</span>
+<span class="bi">print</span>(<span class="var_">s2</span>.school_name)  <span class="cm"># Output: Global Academy</span></pre>
+    </div>
+
+    <div class="rule-box" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+        <strong style="color: #ef4444;">⚠️ Common Gotcha:</strong> Never use <code>self.school_name = "Global Academy"</code> inside an instance method to update class variables. Doing so creates an <em>instance variable shadow</em> for that specific object, rather than modifying the shared class state!
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Alternative Constructors (Factory Pattern)</h2>
+    <p class="text-block">
+      In Python, classes can only have one <code>__init__</code> constructor method. Class methods provide a clean way to define <strong>alternative constructors</strong>, allowing you to instantiate objects using different formats (e.g., parsing strings, lists, or JSON files).
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">alternative_constructor.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">User</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">username</span>, <span class="var_">email</span>):
+        <span class="var_">self</span>.username <span class="op">=</span> <span class="var_">username</span>
+        <span class="var_">self</span>.email <span class="op">=</span> <span class="var_">email</span>
+
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">from_string</span>(<span class="fn">cls</span>, <span class="var_">data_str</span>):
+        <span class="cm"># Parses "john_doe,john@example.com" and returns a User instance</span>
+        <span class="var_">username</span>, <span class="var_">email</span> <span class="op">=</span> <span class="var_">data_str</span>.split(<span class="st">","</span>)
+        <span class="kw">return</span> <span class="fn">cls</span>(<span class="var_">username</span>, <span class="var_">email</span>)  <span class="cm"># Instantiates the class dynamically</span>
+
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">from_dict</span>(<span class="fn">cls</span>, <span class="var_">data_dict</span>):
+        <span class="cm"># Instantiates User using dictionary data</span>
+        <span class="kw">return</span> <span class="fn">cls</span>(<span class="var_">data_dict</span>[<span class="st">"username"</span>], <span class="var_">data_dict</span>[<span class="st">"email"</span>])
+
+<span class="cm"># Standard construction</span>
+<span class="var_">u1</span> <span class="op">=</span> <span class="fn">User</span>(<span class="st">"alice"</span>, <span class="st">"alice@gmail.com"</span>)
+
+<span class="cm"># Alternative construction using string</span>
+<span class="var_">u2</span> <span class="op">=</span> <span class="fn">User</span>.from_string(<span class="st">"bob_smith,bob@gmail.com"</span>)
+
+<span class="cm"># Alternative construction using dictionary</span>
+<span class="var_">u3</span> <span class="op">=</span> <span class="fn">User</span>.from_dict({<span class="st">"username"</span>: <span class="st">"charlie"</span>, <span class="st">"email"</span>: <span class="st">"charlie@gmail.com"</span>})
+
+<span class="bi">print</span>(<span class="var_">u2</span>.username, <span class="var_">u2</span>.email)  <span class="cm"># Output: bob_smith bob@gmail.com</span>
+<span class="bi">print</span>(<span class="var_">u3</span>.username, <span class="var_">u3</span>.email)  <span class="cm"># Output: charlie charlie@gmail.com</span></pre>
+    </div>
+
+    <div class="rule-box">
+        <strong>💡 Key Rule:</strong> Notice that we returned <code>cls(username, email)</code> instead of hardcoding <code>User(username, email)</code>. This ensures that if another class inherits from <code>User</code>, the alternative constructor will correctly instantiate the subclass rather than the parent class!
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Method Types Comparison</h2>
+    <p class="text-block">
+      Python supports three distinct types of methods inside a class. Here is a definitive breakdown of how they operate:
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Method Type</th>
+            <th>Decorator</th>
+            <th>First Argument</th>
+            <th>Access Capabilities</th>
+            <th>Primary Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Instance Method</strong></td>
+            <td>None</td>
+            <td><code>self</code> (instance)</td>
+            <td>Instance state & Class state</td>
+            <td>Regular behaviors, editing instance properties</td>
+          </tr>
+          <tr>
+            <td><strong>Class Method</strong></td>
+            <td><code>@classmethod</code></td>
+            <td><code>cls</code> (class)</td>
+            <td>Class state only (cannot access <code>self</code>)</td>
+            <td>Alternative constructors, modifying class variables</td>
+          </tr>
+          <tr>
+            <td><strong>Static Method</strong></td>
+            <td><code>@staticmethod</code></td>
+            <td>None</td>
+            <td>No state access (completely isolated)</td>
+            <td>Helper functions, logical utility methods</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">comparison.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Demo</span>:
+    <span class="var_">class_val</span> <span class="op">=</span> <span class="st">"class variable"</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">value</span>):
+        <span class="var_">self</span>.value <span class="op">=</span> <span class="var_">value</span>
+
+    <span class="cm"># 1. Instance Method</span>
+    <span class="kw">def</span> <span class="fn">instance_show</span>(<span class="var_">self</span>):
+        <span class="bi">print</span>(<span class="st">f"Instance: {self.value}, Class: {self.class_val}"</span>)
+
+    <span class="cm"># 2. Class Method</span>
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">class_show</span>(<span class="fn">cls</span>):
+        <span class="bi">print</span>(<span class="st">f"Class Variable access: {cls.class_val}"</span>)
+        <span class="cm"># cls.value -> AttributeError! (Class cannot access instance data)</span>
+
+    <span class="cm"># 3. Static Method</span>
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">is_even</span>(<span class="var_">num</span>):
+        <span class="kw">return</span> <span class="var_">num</span> <span class="op">%</span> <span class="nm">2</span> <span class="op">==</span> <span class="nm">0</span>  <span class="cm"># Completely self-contained helper</span>
+
+<span class="var_">d</span> <span class="op">=</span> <span class="fn">Demo</span>(<span class="st">"instance variable"</span>)
+<span class="var_">d</span>.instance_show()
+<span class="fn">Demo</span>.class_show()
+<span class="bi">print</span>(<span class="fn">Demo</span>.is_even(<span class="nm">8</span>))</pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

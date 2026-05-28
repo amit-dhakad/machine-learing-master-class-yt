@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Property Decorator — Python OOP Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --bg2: #0b0f19;
+      --bg3: #111827;
+      --card: #0f172a;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #38bdf8; /* Encapsulation Cyan */
+      --v2c: #6366f1; /* Deep Purple */
+      --v3c: #10b981; /* Success Green */
+      --v4c: #f43f5e; /* Warning Red */
+      --text: #f9fafb;
+      --text2: #9ca3af;
+      --text3: #4b5563;
+      --code-bg: #030712;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(56, 189, 248, 0.04) 1.5px, transparent 0);
+      background-size: 30px 30px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1020px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); text-shadow: 0 0 40px rgba(56, 189, 248, 0.2); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 750px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.6);
+      position: relative; overflow: hidden;
+    }
+    .topic-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: linear-gradient(to bottom, var(--v1c), var(--v2c));
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 24px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(56, 189, 248, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 20px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(56, 189, 248, 0.03); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .warning-box {
+      background: rgba(244, 63, 94, 0.03); border-left: 4px solid var(--v4c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .warning-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v4c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .tip-box {
+      background: rgba(16, 185, 129, 0.03); border-left: 4px solid var(--v3c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin: 35px 0;
+    }
+    .tip-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v3c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; font-weight: 600; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin: 30px 0; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; color: #e2e8f0; line-height: 1.6; }
+    
+    /* Code Highlighting Styles */
+    .kw { color: #f472b6; font-weight: 500; } /* keywords */
+    .fn { color: #38bdf8; } /* function/class names */
+    .st { color: #34d399; } /* strings */
+    .nm { color: #fb923c; } /* numbers */
+    .cm { color: #64748b; font-style: italic; } /* comments */
+    .bi { color: #a78bfa; } /* builtins */
+    .dec { color: #fb7185; font-weight: 600; } /* decorators */
+    .var_ { color: #e2e8f0; } /* variables */
+    .op { color: #94a3b8; } /* operators */
+    .self_ { color: #f43f5e; font-style: italic; } /* self */
+
+    .table-container { overflow-x: auto; margin: 35px 0; border: 1px solid var(--border); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+    th { background: rgba(255,255,255,0.02); color: #fff; padding: 16px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.01); }
+
+    ul, ol { margin-left: 24px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 10px; }
+    li strong { color: #fff; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 6px; color: var(--v1c); font-size: 14px; }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; margin-top: 80px; }
+    
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 05 · Encapsulation</span>
+    <h1>Pythonic Access Control with <span class="highlight">@property</span></h1>
+    <p class="desc">Master the art of creating clean, validated, and backward-compatible object attributes using getters, setters, and deleters in Python.</p>
+  </header>
+
+  <!-- SECTION 1 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> The Core Concept: Why `@property`?</h2>
+    <p class="text-block">
+      In languages like Java or C++, when you want to protect class attributes from external corruption, you hide them behind manual getter and setter methods (e.g., <code>get_email()</code> and <code>set_email()</code>).
+    </p>
+    <p class="text-block">
+      Python takes a different path. It values clean, readable, natural syntax: accessing values directly with dot notation (e.g., <code>user.email = "new@val.com"</code>). But what happens when you need validation? Or what if you need to calculate an attribute on-the-fly?
+    </p>
+    <p class="text-block">
+      The <strong><code>@property</code></strong> decorator is Python's clean way of converting standard methods into <strong>"virtual attributes"</strong>. It lets you write getter/setter logic behind the scenes, while allowing consumers of your class to use clean dot notation as if it were a simple variable.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">🔌 Real-World Analogy: The Smart Climate Control</span>
+      <div class="rl-text">
+        Imagine a Smart Thermostat. As a user, you just want to set the temperature by writing <code>thermostat.temperature = 22</code>. Under the hood, however, the thermostat must run complex checks: Is 22 safe? Does it exceed heating limits? Should it switch to Celsius or Fahrenheit?
+        <br><br>
+        If the temperature interface was a raw variable, users could set it to <code>-500</code>, crashing the system. `@property` is like the smart circuitry behind the thermostat dial. The user sees a simple dial (an attribute), but twisting it triggers a control sequence (a setter method).
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> The Three Pillars: Getter, Setter, and Deleter</h2>
+    <p class="text-block">
+      A complete property workflow consists of up to three decorated methods sharing the <strong>exact same name</strong>:
+    </p>
+    <ul>
+      <li><strong>Getter (<code>@property</code>):</strong> Triggered when you read the attribute value (e.g., <code>val = obj.x</code>). It must return a value.</li>
+      <li><strong>Setter (<code>@x.setter</code>):</strong> Triggered when you write/assign a value (e.g., <code>obj.x = 10</code>). Perfect for input validation and state coercion.</li>
+      <li><strong>Deleter (<code>@x.deleter</code>):</strong> Triggered when you run <code>del obj.x</code>. Used to clean up memory, file handles, database links, or associated states.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">property_anatomy.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Thermostat</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self_">self</span>, <span class="var_">temp</span>):
+        <span class="cm"># Calls the setter immediately during initialization for validation!</span>
+        <span class="self_">self</span>.temperature <span class="op">=</span> <span class="var_">temp</span>
+
+    <span class="cm"># 1. The Getter</span>
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">temperature</span>(<span class="self_">self</span>):
+        <span class="cm"># Reads private backing field '_temperature'</span>
+        <span class="kw">return</span> <span class="self_">self</span>._temperature
+
+    <span class="cm"># 2. The Setter</span>
+    <span class="dec">@temperature</span>.<span class="fn">setter</span>
+    <span class="kw">def</span> <span class="fn">temperature</span>(<span class="self_">self</span>, <span class="var_">value</span>):
+        <span class="kw">if</span> <span class="kw">not</span> <span class="bi">isinstance</span>(<span class="var_">value</span>, (<span class="bi">int</span>, <span class="bi">float</span>)):
+            <span class="kw">raise</span> <span class="bi">TypeError</span>(<span class="st">"Temperature must be a number!"</span>)
+        <span class="kw">if</span> <span class="var_">value</span> <span class="op">&lt;</span> <span class="op">-</span><span class="nm">273.15</span>:
+            <span class="kw">raise</span> <span class="bi">ValueError</span>(<span class="st">"Temperature cannot be below Absolute Zero!"</span>)
+        
+        <span class="cm"># Set private backing field</span>
+        <span class="self_">self</span>._temperature <span class="op">=</span> <span class="var_">value</span>
+
+    <span class="cm"># 3. The Deleter</span>
+    <span class="dec">@temperature</span>.<span class="fn">deleter</span>
+    <span class="kw">def</span> <span class="fn">temperature</span>(<span class="self_">self</span>):
+        <span class="bi">print</span>(<span class="st">"Resetting temperature sensor..."</span>)
+        <span class="kw">del</span> <span class="self_">self</span>._temperature
+
+<span class="cm"># Consumption API:</span>
+<span class="var_">t</span> <span class="op">=</span> <span class="fn">Thermostat</span>(<span class="nm">22.5</span>)  <span class="cm"># Setter runs</span>
+<span class="bi">print</span>(<span class="var_">t</span>.temperature)   <span class="cm"># Getter runs -> Output: 22.5</span>
+
+<span class="var_">t</span>.temperature <span class="op">=</span> <span class="nm">25</span>     <span class="cm"># Setter runs</span>
+<span class="cm"># t.temperature = "hot" # Raises TypeError: Temperature must be a number!</span>
+
+<span class="kw">del</span> <span class="var_">t</span>.temperature      <span class="cm"># Deleter runs</span></pre>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Production Use Case: E-Commerce Shopping Cart</h2>
+    <p class="text-block">
+      Below is a clean, production-grade example of a <code>ShoppingCart</code> that leverages properties to dynamically calculate a <strong>discounted total price</strong>, manage <strong>read-only tracking</strong> details, and enforce strict state rules.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">shopping_cart.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">ShoppingCart</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self_">self</span>):
+        <span class="self_">self</span>._items <span class="op">=</span> {}
+        <span class="self_">self</span>._discount_percent <span class="op">=</span> <span class="nm">0.0</span>
+
+    <span class="kw">def</span> <span class="fn">add_item</span>(<span class="self_">self</span>, <span class="var_">item_name</span>, <span class="var_">price</span>, <span class="var_">qty</span><span class="op">=</span><span class="nm">1</span>):
+        <span class="kw">if</span> <span class="var_">price</span> <span class="op">&lt;=</span> <span class="nm">0</span>:
+            <span class="kw">raise</span> <span class="bi">ValueError</span>(<span class="st">"Price must be positive."</span>)
+        <span class="self_">self</span>._items[<span class="var_">item_name</span>] <span class="op">=</span> <span class="self_">self</span>._items.get(<span class="var_">item_name</span>, <span class="nm">0</span>) <span class="op">+</span> <span class="var_">qty</span>
+        <span class="self_">self</span>._prices <span class="op">=</span> <span class="bi">getattr</span>(<span class="self_">self</span>, <span class="st">"_prices"</span>, {})
+        <span class="self_">self</span>._prices[<span class="var_">item_name</span>] <span class="op">=</span> <span class="var_">price</span>
+
+    <span class="cm"># 1. READ-ONLY property (computed value)</span>
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">subtotal</span>(<span class="self_">self</span>):
+        <span class="kw">return</span> <span class="bi">sum</span>(<span class="self_">self</span>._items[<span class="var_">item</span>] <span class="op">*</span> <span class="self_">self</span>._prices[<span class="var_">item</span>] <span class="kw">for</span> <span class="var_">item</span> <span class="kw">in</span> <span class="self_">self</span>._items)
+
+    <span class="cm"># 2. GETTER & SETTER property with validation rules</span>
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">discount</span>(<span class="self_">self</span>):
+        <span class="kw">return</span> <span class="self_">self</span>._discount_percent
+
+    <span class="dec">@discount</span>.<span class="fn">setter</span>
+    <span class="kw">def</span> <span class="fn">discount</span>(<span class="self_">self</span>, <span class="var_">val</span>):
+        <span class="kw">if</span> <span class="kw">not</span> <span class="bi">isinstance</span>(<span class="var_">val</span>, (<span class="bi">int</span>, <span class="bi">float</span>)):
+            <span class="kw">raise</span> <span class="bi">TypeError</span>(<span class="st">"Discount rate must be a numeric percentage!"</span>)
+        <span class="kw">if</span> <span class="kw">not</span> (<span class="nm">0.0</span> <span class="op">&lt;=</span> <span class="var_">val</span> <span class="op">&lt;=</span> <span class="nm">90.0</span>):
+            <span class="kw">raise</span> <span class="bi">ValueError</span>(<span class="st">"Discount limit exceeded! Must be between 0% and 90%."</span>)
+        <span class="self_">self</span>._discount_percent <span class="op">=</span> <span class="bi">float</span>(<span class="var_">val</span>)
+
+    <span class="cm"># 3. DYNAMIC READ-ONLY property</span>
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">grand_total</span>(<span class="self_">self</span>):
+        <span class="var_">discount_factor</span> <span class="op">=</span> <span class="nm">1.0</span> <span class="op">-</span> (<span class="self_">self</span>.discount <span class="op">/</span> <span class="nm">100.0</span>)
+        <span class="kw">return</span> <span class="self_">self</span>.subtotal <span class="op">*</span> <span class="var_">discount_factor</span>
+
+<span class="cm"># Usage:</span>
+<span class="var_">cart</span> <span class="op">=</span> <span class="fn">ShoppingCart</span>()
+<span class="var_">cart</span>.add_item(<span class="st">"M3 Macbook Pro"</span>, <span class="nm">2000.00</span>, <span class="nm">1</span>)
+<span class="var_">cart</span>.add_item(<span class="st">"USB-C Hub"</span>, <span class="nm">50.00</span>, <span class="nm">2</span>)
+
+<span class="bi">print</span>(<span class="st">f"Subtotal: ${cart.subtotal:.2f}"</span>)          <span class="cm"># Output: Subtotal: $2100.00</span>
+<span class="var_">cart</span>.discount <span class="op">=</span> <span class="nm">15</span>                             <span class="cm"># Setter validates rate (15%)</span>
+<span class="bi">print</span>(<span class="st">f"Grand Total: ${cart.grand_total:.2f}"</span>)      <span class="cm"># Output: Grand Total: $1785.00</span>
+
+<span class="cm"># cart.grand_total = 1000.0 # Error: AttributeError: can't set attribute</span></pre>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Critical Real-World Pitfalls</h2>
+    <p class="text-block">
+      While `@property` is incredibly powerful, developers frequently make architectural or syntactical mistakes when implementing it in production. Let's study how to avoid these catastrophic issues.
+    </p>
+
+    <!-- PITFALL 1 -->
+    <div class="warning-box">
+      <span class="warning-label">🚨 Trap 1: The Maximum Recursion Depth Crash (Infinite Loop)</span>
+      <p class="text-block" style="color:var(--text)">
+        This is the **number-one mistake** made by developers using properties. It occurs when a setter or getter accidentally calls <em>itself</em> instead of its backing field (the private attribute prefixed with an underscore).
+      </p>
+      
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">broken_recursion.py</span>
+        </div>
+        <pre><span class="cm"># ❌ WRONG: The Infinite Loop Trap</span>
+<span class="kw">class</span> <span class="fn">User</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self_">self</span>, <span class="var_">username</span>):
+        <span class="self_">self</span>.username <span class="op">=</span> <span class="var_">username</span>
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">username</span>(<span class="self_">self</span>):
+        <span class="kw">return</span> <span class="self_">self</span>.username  <span class="cm"># ❌ Triggering getter inside getter! Infinite recursion!</span>
+
+    <span class="dec">@username</span>.<span class="fn">setter</span>
+    <span class="kw">def</span> <span class="fn">username</span>(<span class="self_">self</span>, <span class="var_">val</span>):
+        <span class="self_">self</span>.username <span class="op">=</span> <span class="var_">val</span>   <span class="cm"># ❌ Triggering setter inside setter! Infinite recursion!</span>
+
+<span class="cm"># Result: RecursionError: maximum recursion depth exceeded while calling a Python object</span></pre>
+      </div>
+
+      <p class="text-block" style="color:var(--text)">
+        <strong>How to Fix:</strong> Always use a private, uniquely named backing variable (standard convention is a single underscore prefix, like <code>self._username</code>) as the variable that actually holds the data.
+      </p>
+      <code>self._username = val</code>
+    </div>
+
+    <!-- PITFALL 2 -->
+    <div class="warning-box">
+      <span class="warning-label">🚧 Trap 2: Bypassing Validation in `__init__`</span>
+      <p class="text-block" style="color:var(--text)">
+        Sometimes developers set up properties to validate data, but write direct values inside the constructor (<code>__init__</code>). This bypasses all validation when a new object is created!
+      </p>
+
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">bypassed_validation.py</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="fn">Account</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self_">self</span>, <span class="var_">balance</span>):
+        <span class="self_">self</span>._balance <span class="op">=</span> <span class="var_">balance</span>  <span class="cm"># ❌ OOPS: Direct private assignment bypasses setter validation!</span>
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">balance</span>(<span class="self_">self</span>):
+        <span class="kw">return</span> <span class="self_">self</span>._balance
+
+    <span class="dec">@balance</span>.<span class="fn">setter</span>
+    <span class="kw">def</span> <span class="fn">balance</span>(<span class="self_">self</span>, <span class="var_">val</span>):
+        <span class="kw">if</span> <span class="var_">val</span> <span class="op">&lt;</span> <span class="nm">0</span>:
+            <span class="kw">raise</span> <span class="bi">ValueError</span>(<span class="st">"Balance cannot be negative!"</span>)
+        <span class="self_">self</span>._balance <span class="op">=</span> <span class="var_">val</span>
+
+<span class="cm"># ❌ Bypassed! Negative balance accepted at creation:</span>
+<span class="var_">acc</span> <span class="op">=</span> <span class="fn">Account</span>(<span class="op">-</span><span class="nm">500</span>)</pre>
+      </div>
+
+      <p class="text-block" style="color:var(--text)">
+        <strong>How to Fix:</strong> Assign directly to the public property name in `__init__` so it routes the values through the setter mechanism during instantiation:
+      </p>
+      <code>self.balance = balance  # Active setter triggers validation checks during startup!</code>
+    </div>
+
+    <!-- PITFALL 3 -->
+    <div class="tip-box">
+      <span class="tip-label">⚡ Trap 3: The Expensive Dynamic Computation Slowness</span>
+      <p class="text-block" style="color:var(--text)">
+        Because a property looks and acts like a simple attribute, consumers of your class might treat it as a O(1) constant lookup and place it in tight, high-performance loops. If your `@property` makes API requests, queries a DB, or parses heavy JSON files, the app will lag tremendously!
+      </p>
+
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">performance_drain.py</span>
+        </div>
+        <pre><span class="cm"># ❌ AVOID this in hot loops:</span>
+<span class="kw">class</span> <span class="fn">DataAnalyzer</span>:
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">processed_metrics</span>(<span class="self_">self</span>):
+        <span class="cm"># Simulated heavy calculation:</span>
+        <span class="kw">return</span> [<span class="var_">x</span><span class="op">**</span><span class="nm">2</span> <span class="kw">for</span> <span class="var_">x</span> <span class="kw">in</span> <span class="bi">range</span>(<span class="nm">10000000</span>)]</pre>
+      </div>
+
+      <p class="text-block" style="color:var(--text)">
+        <strong>Solutions:</strong>
+      </p>
+      <ol style="margin-left: 20px; color: var(--text2)">
+        <li>Convert it to a standard method (e.g., <code>compute_metrics()</code>) so developers know it's a heavy call.</li>
+        <li>Leverage Python's built-in <strong><code>@cached_property</code></strong>! It evaluates the property once, replaces it with a normal static attribute in the instance's dictionary, and loads it instantly next time.</li>
+      </ol>
+
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">cached_property.py</span>
+        </div>
+        <pre><span class="kw">from</span> <span class="fn">functools</span> <span class="kw">import</span> <span class="var_">cached_property</span>
+
+<span class="kw">class</span> <span class="fn">DataAnalyzer</span>:
+    <span class="dec">@cached_property</span>
+    <span class="kw">def</span> <span class="fn">processed_metrics</span>(<span class="self_">self</span>):
+        <span class="cm"># Only runs ONCE! Subsequent access reads directly from instance dict cache.</span>
+        <span class="kw">return</span> [<span class="var_">x</span><span class="op">**</span><span class="nm">2</span> <span class="kw">for</span> <span class="var_">x</span> <span class="kw">in</span> <span class="bi">range</span>(<span class="nm">10000000</span>)]</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Cheat Sheet: Attributes vs Getters vs Properties</h2>
+    <p class="text-block">
+      This comparative matrix highlights when to use standard instance attributes, custom accessor methods, properties, and cached properties.
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern Type</th>
+            <th>Trigger Syntax</th>
+            <th>Has Validation?</th>
+            <th>Overhead Cost</th>
+            <th>Use Case Recommendation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Raw Attribute</strong></td>
+            <td><code>obj.x</code></td>
+            <td>❌ No</td>
+            <td>O(1) Minimal</td>
+            <td>Simple states without safety checks or validation logic.</td>
+          </tr>
+          <tr>
+            <td><strong>Getter Method</strong></td>
+            <td><code>obj.get_x()</code></td>
+            <td>✔️ Yes</td>
+            <td>O(1) + Call</td>
+            <td>Non-Pythonic, try to avoid inside standard Python OOP libraries.</td>
+          </tr>
+          <tr>
+            <td><strong>Property Getter</strong></td>
+            <td><code>obj.x</code></td>
+            <td>✔️ Yes</td>
+            <td>O(1) + Call</td>
+            <td>Dynamic, validated, read-only, or safe state modifications.</td>
+          </tr>
+          <tr>
+            <td><strong>Cached Property</strong></td>
+            <td><code>obj.x</code></td>
+            <td>✔️ Once</td>
+            <td>O(1) after init</td>
+            <td>Expensive calculations, DB queries, or high-performance reads.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    
+    // Create temporary container to get plain text without HTML span structures
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = pre.innerHTML;
+    const text = tempElement.innerText;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

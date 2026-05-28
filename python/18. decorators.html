@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decorators — Python Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #0ea5e9; /* Decorator Cyan/Sky */
+      --v2c: #8b5cf6; /* Wrapper Purple */
+      --v3c: #10b981;
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 700px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(14, 165, 233, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 30px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(14, 165, 233, 0.05); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin-bottom: 40px;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; }
+    .kw { color: #c084fc; } .fn { color: #60a5fa; } .st { color: #86efac; } .nm { color: #fb923c; } .cm { color: #475569; font-style: italic; } .bi { color: #38bdf8; } .dec { color: #38bdf8; } .var_ { color: #e2e8f0; } .op { color: #94a3b8; }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; }
+    
+    ul { margin-left: 20px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--v1c); }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 06 · Advanced Functions</span>
+    <h1>Supercharging Code with <span class="highlight">Decorators</span></h1>
+    <p class="desc">A powerful design pattern in Python that allows you to wrap another function in order to extend its behavior, without permanently modifying it.</p>
+  </header>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is a Decorator?</h2>
+    <p class="text-block">
+      In Python, functions are <strong>First-Class Objects</strong>. This means they can be passed around and used as arguments, just like strings or integers. 
+    </p>
+    <p class="text-block">
+      A <strong>Decorator</strong> takes in a function, adds some functionality (before or after the original function runs), and returns it. We apply a decorator to a function by placing the <code>@decorator_name</code> syntax right above it.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">🎁 Real World Case: Gift Wrapping</span>
+      <div class="rl-text">
+        Imagine you buy a book (your function). A decorator is like a gift wrapping service. You give them the book, they put it in a box, wrap it in nice paper, and give it back to you. It's still the exact same book inside, but its presentation has been extended!
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> Building a Basic Decorator</h2>
+    <p class="text-block">
+      Let's create a custom decorator called <code>@logger</code> that prints a message before and after a function runs.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">basic_decorator.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">logger</span>(func):
+    <span class="kw">def</span> <span class="fn">wrapper</span>():
+        <span class="bi">print</span>(<span class="st">"[LOG] Function is about to run..."</span>)
+        func()  <span class="cm"># Execute the original function</span>
+        <span class="bi">print</span>(<span class="st">"[LOG] Function has finished running."</span>)
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@logger</span>
+<span class="kw">def</span> <span class="fn">say_hello</span>():
+    <span class="bi">print</span>(<span class="st">"Hello, World!"</span>)
+
+<span class="cm"># Calling the decorated function</span>
+say_hello()
+
+<span class="cm"># Output:</span>
+<span class="cm"># [LOG] Function is about to run...</span>
+<span class="cm"># Hello, World!</span>
+<span class="cm"># [LOG] Function has finished running.</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Decorating Functions with Arguments</h2>
+    <p class="text-block">
+      What if our original function takes arguments (like `a` and `b`)? Our wrapper function inside the decorator must be prepared to accept them using <code>*args</code> and <code>**kwargs</code>.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">args_decorator.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">timer</span>(func):
+    <span class="kw">import</span> <span class="fn">time</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs):
+        <span class="var_">start_time</span> <span class="op">=</span> <span class="fn">time</span>.time()
+        
+        <span class="cm"># Pass all arguments to the original function</span>
+        <span class="var_">result</span> <span class="op">=</span> func(<span class="op">*</span>args, <span class="op">**</span>kwargs) 
+        
+        <span class="var_">end_time</span> <span class="op">=</span> <span class="fn">time</span>.time()
+        <span class="bi">print</span>(<span class="st">f"Execution took {end_time - start_time:.4f} seconds"</span>)
+        
+        <span class="kw">return</span> <span class="var_">result</span> <span class="cm"># Don't forget to return the result!</span>
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@timer</span>
+<span class="kw">def</span> <span class="fn">heavy_computation</span>(n):
+    <span class="kw">return</span> <span class="bi">sum</span>(i<span class="op">**</span><span class="nm">2</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(n))
+
+<span class="bi">print</span>(heavy_computation(<span class="nm">1000000</span>))</pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Real-World Usage: Authentication</h2>
+    <p class="text-block">
+      Decorators are heavily used in frameworks like Flask or Django to check if a user is logged in before allowing them to access a route.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">auth_decorator.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="var_">current_user</span> <span class="op">=</span> {<span class="st">"is_logged_in"</span>: <span class="nm">False</span>, <span class="st">"name"</span>: <span class="st">"Guest"</span>}
+
+<span class="kw">def</span> <span class="fn">login_required</span>(func):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs):
+        <span class="kw">if</span> <span class="kw">not</span> <span class="var_">current_user</span>[<span class="st">"is_logged_in"</span>]:
+            <span class="bi">print</span>(<span class="st">"⛔ Access Denied: Please log in first."</span>)
+            <span class="kw">return</span>
+        <span class="kw">return</span> func(<span class="op">*</span>args, <span class="op">**</span>kwargs)
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@login_required</span>
+<span class="kw">def</span> <span class="fn">view_dashboard</span>():
+    <span class="bi">print</span>(<span class="st">f"Welcome to your dashboard, {current_user['name']}!"</span>)
+
+<span class="cm"># Attempt 1: Not logged in</span>
+view_dashboard()
+
+<span class="cm"># Attempt 2: Logged in</span>
+<span class="var_">current_user</span>[<span class="st">"is_logged_in"</span>] <span class="op">=</span> <span class="nm">True</span>
+<span class="var_">current_user</span>[<span class="st">"name"</span>] <span class="op">=</span> <span class="st">"Alice"</span>
+view_dashboard()</pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Advanced Concepts Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

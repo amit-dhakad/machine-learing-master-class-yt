@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polymorphism — Python OOP Masterclass</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #fb923c;
+      /* Polymorphism Orange */
+      --v2c: #38bdf8;
+      /* Dispatch Blue */
+      --green: #10b981;
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(251, 146, 60, 0.1);
+      border: 1px solid rgba(251, 146, 60, 0.2);
+      color: var(--v1c);
+      padding: 6px 18px;
+      border-radius: 99px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .highlight {
+      color: var(--v1c);
+    }
+
+    .desc {
+      color: var(--text2);
+      font-size: 18px;
+      font-weight: 300;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .sec-num {
+      font-family: 'Fira Code', monospace;
+      color: var(--v1c);
+      font-size: 16px;
+      background: rgba(251, 146, 60, 0.1);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .text-block {
+      color: var(--text2);
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .text-block strong {
+      color: #fff;
+    }
+
+    .analogy-box {
+      background: rgba(16, 185, 129, 0.05);
+      border-left: 4px solid var(--green);
+      padding: 30px;
+      border-radius: 0 20px 20px 0;
+      margin-bottom: 40px;
+    }
+
+    .box-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .advanced-callout {
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      border-radius: 16px;
+      padding: 25px;
+      margin: 30px 0;
+    }
+
+    .adv-tag {
+      background: var(--v2c);
+      color: #fff;
+      font-size: 10px;
+      font-family: 'Fira Code', monospace;
+      padding: 2px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    .cb {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .cb-head {
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .cb-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      margin-left: auto;
+    }
+
+    pre {
+      padding: 24px;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+
+    .kw {
+      color: #c084fc;
+    }
+
+    .fn {
+      color: #60a5fa;
+    }
+
+    .st {
+      color: #86efac;
+    }
+
+    .nm {
+      color: #fb923c;
+    }
+
+    .cm {
+      color: #475569;
+      font-style: italic;
+    }
+
+    .bi {
+      color: #38bdf8;
+    }
+
+    .dec {
+      color: #f472b6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .grid-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 16px;
+    }
+
+    .grid-item h4 {
+      margin-bottom: 10px;
+      color: var(--v1c);
+    }
+
+    footer {
+      text-align: center;
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      color: var(--text3);
+      font-size: 14px;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <header>
+      <span class="tag">Module 02 · Polymorphism</span>
+      <h1>The Power of <span class="highlight">Polymorphism</span></h1>
+      <p class="desc">"Poly" (Many) + "Morph" (Forms). One interface, multiple implementations. This is the heart of
+        flexible software architecture.</p>
+    </header>
+
+    <div class="topic-card">
+      <h2 class="section-title"><span class="sec-num">01</span> What is Polymorphism?</h2>
+      <p class="text-block">
+        Polymorphism allows objects of different classes to be treated as objects of a common superclass. It means the
+        same function name can be used for different types. This makes the code <strong>dynamic</strong> and
+        <strong>scalable</strong>.
+      </p>
+
+      <div class="analogy-box">
+        <span class="box-label">🎮 Real World Case: The Universal Remote</span>
+        <div class="rl-text">
+          Imagine a <strong>Power Button</strong> on a universal remote. <br><br>
+          - When you press it for the <strong>TV</strong>, it turns on the display.<br>
+          - When you press it for the <strong>AC</strong>, it starts the cooling fan.<br>
+          - When you press it for the <strong>Music System</strong>, it starts the speakers.<br><br>
+          The <em>Action</em> (interface) is the same: <strong>Press Power</strong>. But the <em>Reaction</em>
+          (implementation) is different for every device.
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced: Method Overloading Myth -->
+    <div class="topic-card">
+      <h2 class="section-title"><span class="sec-num">02</span> The "Overloading" Myth vs Dispatch</h2>
+      <p class="text-block">
+        Unlike Java or C++, Python <strong>does not support</strong> traditional method overloading (same method name
+        with different parameters). In Python, the last defined method overwrites everything before it.
+      </p>
+
+      <div class="advanced-callout">
+        <span class="adv-tag">Expert Tool</span>
+        <div class="adv-text">
+          To achieve polymorphism based on data types, Python engineers use <code>@singledispatch</code> from the
+          <code>functools</code> module.
+        </div>
+      </div>
+
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div>
+          <div class="dot" style="background:#febc2e"></div>
+          <div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">polymorphic_dispatch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy
+          </button>
+        </div>
+        <pre><span class="kw">from</span> <span class="var_">functools</span> <span class="kw">import</span> <span class="var_">singledispatch</span>
+
+<span class="dec">@singledispatch</span>
+<span class="kw">def</span> <span class="fn">process</span>(data):
+    <span class="bi">print</span>(<span class="st">f"Processing generic data: {data}"</span>)
+
+<span class="dec">@process.register(int)</span>
+<span class="kw">def</span> <span class="fn">_</span>(data):
+    <span class="bi">print</span>(<span class="st">f"Processing Integer: {data * 10}"</span>)
+
+<span class="dec">@process.register(list)</span>
+<span class="kw">def</span> <span class="fn">_</span>(data):
+    <span class="bi">print</span>(<span class="st">f"Processing List of size: {len(data)}"</span>)
+
+<span class="fn">process</span>(<span class="st">"Hello"</span>) <span class="cm"># Generic</span>
+<span class="fn">process</span>(<span class="nm">50</span>)      <span class="cm"># Int version</span>
+<span class="fn">process</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]) <span class="cm"># List version</span></pre>
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <h2 class="section-title"><span class="sec-num">03</span> Duck Typing (Python's Philosophy)</h2>
+      <p class="text-block">
+        In Python, we don't care about the <em>Type</em> of the object. We care about the <em>Behavior</em>. This is
+        called <strong>Duck Typing</strong>:
+        <em>"If it walks like a duck and quacks like a duck, it's a duck."</em>
+      </p>
+
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div>
+          <div class="dot" style="background:#febc2e"></div>
+          <div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">duck_typing_system.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy
+          </button>
+        </div>
+        <pre><span class="kw">class</span> <span class="fn">CreditCard</span>:
+    <span class="kw">def</span> <span class="fn">pay</span>(<span class="var_">self</span>, amount):
+        <span class="bi">print</span>(<span class="st">f"Processing ${amount} via Visa/MasterCard."</span>)
+
+<span class="kw">class</span> <span class="fn">CryptoWallet</span>:
+    <span class="kw">def</span> <span class="fn">pay</span>(<span class="var_">self</span>, amount):
+        <span class="bi">print</span>(<span class="st">f"Processing ${amount} via Blockchain (BTC/ETH)."</span>)
+
+<span class="cm"># This function accepts ANY object that has a .pay() method</span>
+<span class="kw">def</span> <span class="fn">process_checkout</span>(payment_method, amount):
+    payment_method.<span class="fn">pay</span>(amount)
+
+<span class="cm"># Real-time usage</span>
+<span class="var_">user_card</span> <span class="op">=</span> <span class="fn">CreditCard</span>()
+<span class="var_">user_crypto</span> <span class="op">=</span> <span class="fn">CryptoWallet</span>()
+
+<span class="fn">process_checkout</span>(user_card, <span class="nm">1200</span>)   <span class="cm"># Polymorphic behavior</span>
+<span class="fn">process_checkout</span>(user_crypto, <span class="nm">1200</span>) <span class="cm"># Polymorphic behavior</span></pre>
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <h2 class="section-title"><span class="sec-num">04</span> Runtime Polymorphism (Overriding)</h2>
+      <p class="text-block">
+        This is also known as <strong>Dynamic Polymorphism</strong>. The method call is resolved at runtime based on the
+        actual object type, not the variable declaration.
+      </p>
+
+      <div class="cb">
+        <div class="cb-head">
+          <div class="dot" style="background:#ff5f57"></div>
+          <div class="dot" style="background:#febc2e"></div>
+          <div class="dot" style="background:#28c840"></div>
+          <span class="cb-title">overriding_example.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy
+          </button>
+        </div>
+        <pre><span class="kw">class</span> <span class="fn">Shape</span>:
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var_">self</span>): <span class="bi">print</span>(<span class="st">"Calculating area..."</span>)
+
+<span class="kw">class</span> <span class="fn">Circle</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var_">self</span>, radius): <span class="bi">print</span>(<span class="st">f"Circle Area: {3.14 * radius**2}"</span>)
+
+<span class="kw">class</span> <span class="fn">Square</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var_">self</span>, side): <span class="bi">print</span>(<span class="st">f"Square Area: {side * side}"</span>)
+
+<span class="cm"># The behavior changes based on the OBJECT type</span>
+<span class="var_">my_shape</span> <span class="op">=</span> <span class="fn">Circle</span>()
+<span class="var_">my_shape</span>.<span class="fn">area</span>(<span class="nm">5</span>)  <span class="cm"># 78.5</span></pre>
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <h2 class="section-title"><span class="sec-num">05</span> The "Secret" Polymorphism</h2>
+      <p class="text-block">Python's built-in operators and functions are the best examples of polymorphism in action.
+      </p>
+
+      <div class="grid">
+        <div class="grid-item">
+          <h4>Operator Polymorphism</h4>
+          <p class="text-block" style="font-size:14px">The <code>+</code> operator: <br>
+            - <code>1 + 2 = 3</code> (Addition) <br>
+            - <code>"A" + "B" = "AB"</code> (Concat) <br>
+            - <code>[1] + [2] = [1, 2]</code> (Merging)</p>
+        </div>
+        <div class="grid-item">
+          <h4>Function Polymorphism</h4>
+          <p class="text-block" style="font-size:14px">The <code>len()</code> function: <br>
+            - <code>len("abc")</code> -> 3 <br>
+            - <code>len([1, 2])</code> -> 2 <br>
+            - <code>len({'a':1})</code> -> 1</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Amit Dhakad AI · Advanced Python Engineering</p>
+      <p>© 2026 Object Oriented Mastery</p>
+    </footer>
+  </div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+
+</html>

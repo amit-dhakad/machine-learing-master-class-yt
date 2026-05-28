@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encapsulation — Python OOP Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #10b981; /* Encapsulation Green */
+      --v2c: #f472b6; /* Private Pink */
+      --v3c: #38bdf8; /* Property Blue */
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 700px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 30px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(56, 189, 248, 0.05); border-left: 4px solid var(--v3c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin-bottom: 40px;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v3c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; }
+    .kw { color: #c084fc; } .fn { color: #60a5fa; } .st { color: #86efac; } .nm { color: #fb923c; } .cm { color: #475569; font-style: italic; } .bi { color: #38bdf8; } .dec { color: #f472b6; } .var_ { color: #e2e8f0; }
+
+    .modifier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 30px 0; }
+    .mod-item { background: var(--bg2); border: 1px solid var(--border); padding: 25px; border-radius: 16px; text-align: center; }
+    .mod-prefix { font-family: 'Fira Code', monospace; font-size: 20px; color: var(--v1c); display: block; margin-bottom: 10px; }
+    .mod-name { font-weight: 700; display: block; margin-bottom: 5px; }
+    .mod-desc { font-size: 13px; color: var(--text3); line-height: 1.4; }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 03 · Encapsulation</span>
+    <h1>The Shield of <span class="highlight">Encapsulation</span></h1>
+    <p class="desc">Wrapping data and code into a single unit to protect the internal state from unauthorized access and accidental modification.</p>
+  </header>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What is Encapsulation?</h2>
+    <p class="text-block">
+      Encapsulation is the practice of <strong>bundling data</strong> (variables) and <strong>methods</strong> (functions) that act on that data within a single unit (Class). It also involves <strong>Restricting Access</strong> to some of an object's components.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">💊 Real World Case: The Medical Capsule</span>
+      <div class="rl-text">
+        Think of a medical capsule. All the medicinal chemicals (data) are enclosed inside a plastic shell (class). You don't interact with the powder directly; you just swallow the capsule. The shell protects the medicine and ensures it is delivered correctly.
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> Access Modifiers in Python</h2>
+    <p class="text-block">
+      Python doesn't have strict "private" or "public" keywords like Java. Instead, it uses a <strong>Naming Convention</strong> to signal intended access levels.
+    </p>
+
+    <div class="modifier-grid">
+      <div class="mod-item">
+        <span class="mod-prefix">var</span>
+        <span class="mod-name">Public</span>
+        <span class="mod-desc">Accessible from anywhere (No underscore)</span>
+      </div>
+      <div class="mod-item">
+        <span class="mod-prefix">_var</span>
+        <span class="mod-name">Protected</span>
+        <span class="mod-desc">Accessible within Class & Subclasses</span>
+      </div>
+      <div class="mod-item" style="border-color: var(--v2c)">
+        <span class="mod-prefix" style="color:var(--v2c)">__var</span>
+        <span class="mod-name">Private</span>
+        <span class="mod-desc">Accessible only within the Class</span>
+      </div>
+    </div>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">access_demo.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Bank</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>):
+        <span class="var_">self</span>.bank_name <span class="op">=</span> <span class="st">"Swiss Global"</span>    <span class="cm"># Public</span>
+        <span class="var_">self</span>._branch <span class="op">=</span> <span class="st">"Zurich Main"</span>      <span class="cm"># Protected</span>
+        <span class="var_">self</span>.__vault <span class="op">=</span> <span class="nm">5000000</span>           <span class="cm"># Private</span>
+
+<span class="var_">acc</span> <span class="op">=</span> <span class="fn">Bank</span>()
+<span class="bi">print</span>(acc.bank_name)  <span class="cm"># Works</span>
+<span class="bi">print</span>(acc._branch)   <span class="cm"># Works (but discouraged)</span>
+<span class="cm"># print(acc.__vault)  # Error! AttributeError</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Name Mangling</h2>
+    <p class="text-block">
+      When you use double underscores (<code>__</code>), Python performs <strong>Name Mangling</strong>. It internally renames the variable to <code>_ClassName__variableName</code> to prevent naming collisions in inheritance.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">mangling_trick.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="var_">acc</span> <span class="op">=</span> <span class="fn">Bank</span>()
+<span class="cm"># Secretly accessing private data via mangled name</span>
+<span class="bi">print</span>(acc._Bank__vault) <span class="cm"># 5000000</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Pythonic Way: @property</h2>
+    <p class="text-block">
+      Instead of writing <code>get_balance()</code> and <code>set_balance()</code>, we use the <strong>@property decorator</strong>. This allows us to use getter/setter logic while keeping the syntax as simple as a variable access.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">property_logic.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Employee</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, salary):
+        <span class="var_">self</span>.__salary <span class="op">=</span> salary
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">income</span>(<span class="var_">self</span>):
+        <span class="kw">return</span> <span class="st">f"${self.__salary}"</span>
+
+    <span class="dec">@income.setter</span>
+    <span class="kw">def</span> <span class="fn">income</span>(<span class="var_">self</span>, new_val):
+        <span class="kw">if</span> new_val <span class="op">></span> <span class="nm">0</span>:
+            <span class="var_">self</span>.__salary <span class="op">=</span> new_val
+        <span class="kw">else</span>:
+            <span class="bi">print</span>(<span class="st">"Invalid Salary!"</span>)
+
+<span class="var_">emp</span> <span class="op">=</span> <span class="fn">Employee</span>(<span class="nm">2500</span>)
+<span class="var_">emp</span>.income <span class="op">=</span> <span class="nm">3000</span>  <span class="cm"># Using setter</span>
+<span class="bi">print</span>(emp.income) <span class="cm"># Using getter (Output: $3000)</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Why Use Encapsulation?</h2>
+    <div class="text-block">
+      <ul>
+        <li><strong>Security</strong>: Prevents outside code from corrupting internal data.</li>
+        <li><strong>Maintainability</strong>: You can change the internal implementation without affecting the code that uses the object.</li>
+        <li><strong>Flexibility</strong>: You can make attributes read-only (by providing a getter but no setter).</li>
+        <li><strong>Validation</strong>: You can check if the data is valid before saving it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

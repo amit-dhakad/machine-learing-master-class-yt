@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Special (Dunder) Methods — Python OOP Masterclass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg2: #0a0c14;
+      --bg3: #0f121d;
+      --card: #0d111b;
+      --border: #1e293b;
+      --border2: #334155;
+      --v1c: #ec4899; /* Dunder Pink/Magenta */
+      --v2c: #8b5cf6; /* Purple Accents */
+      --v3c: #10b981; /* Success Green */
+      --text: #f8fafc;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --code-bg: #020617;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+
+    header { text-align: center; margin-bottom: 80px; }
+    .tag {
+      display: inline-block; background: rgba(236, 72, 153, 0.1);
+      border: 1px solid rgba(236, 72, 153, 0.2);
+      color: var(--v1c); padding: 6px 18px; border-radius: 99px;
+      font-family: 'Fira Code', monospace; font-size: 12px; margin-bottom: 20px;
+    }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+    .highlight { color: var(--v1c); }
+    .desc { color: var(--text2); font-size: 18px; font-weight: 300; max-width: 700px; margin: 0 auto; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px; margin-bottom: 40px;
+      box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+    .sec-num { font-family: 'Fira Code', monospace; color: var(--v1c); font-size: 16px; background: rgba(236, 72, 153, 0.1); padding: 4px 10px; border-radius: 8px; }
+
+    .text-block { color: var(--text2); margin-bottom: 30px; font-size: 16px; }
+    .text-block strong { color: #fff; }
+
+    .analogy-box {
+      background: rgba(236, 72, 153, 0.05); border-left: 4px solid var(--v1c);
+      padding: 30px; border-radius: 0 20px 20px 0; margin-bottom: 40px;
+    }
+    .box-label { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--v1c); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: block; }
+
+    .cb { background: var(--code-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+    .cb-head { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cb-title { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text3); margin-left: auto; }
+    
+    pre { padding: 24px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-x: auto; }
+    .kw { color: #c084fc; } .fn { color: #60a5fa; } .st { color: #86efac; } .nm { color: #fb923c; } .cm { color: #475569; font-style: italic; } .bi { color: #38bdf8; } .dec { color: #f472b6; } .var_ { color: #e2e8f0; } .op { color: #94a3b8; }
+
+    .table-container { overflow-x: auto; margin: 30px 0; border: 1px solid var(--border); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+    th { background: rgba(255,255,255,0.02); color: #fff; padding: 16px 20px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.01); }
+
+    .rule-box {
+        background: rgba(59, 130, 246, 0.05); border: 1px dashed var(--v1c);
+        padding: 20px; border-radius: 12px; margin: 20px 0;
+    }
+
+    footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: var(--text3); font-size: 14px; }
+    
+    ul { margin-left: 20px; margin-bottom: 20px; color: var(--text2); }
+    li { margin-bottom: 8px; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--v1c); }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 15px;
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--v1c);
+      border-color: var(--v1c);
+    }
+    .copy-btn.copied {
+      color: var(--v3c);
+      border-color: var(--v3c);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Module 05 · OOP Advanced</span>
+    <h1>Unlocking Core Power with <span class="highlight">Special Methods</span></h1>
+    <p class="desc">Learn how to overload arithmetic operators, customize object representations, and configure custom collection types using Python's Dunder (Double Underscore) methods.</p>
+  </header>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">01</span> What are Special (Dunder) Methods?</h2>
+    <p class="text-block">
+      In Python, <strong>Special Methods</strong> (popularly known as <strong>Dunder Methods</strong> due to their <strong>D</strong>ouble <strong>Under</strong>scores) are built-in methods that allow your custom classes to integrate seamlessly with Python's core syntax and features.
+    </p>
+    <p class="text-block">
+      For example, when you use the <code>+</code> operator on numbers, Python calls `__add__` under the hood. When you run <code>len(my_list)</code>, Python calls `__len__`. By defining these exact methods inside your custom classes, you tell Python how your objects should behave when subjected to standard operators.
+    </p>
+
+    <div class="analogy-box">
+      <span class="box-label">🔌 Real World Case: Universal USB-C Standard</span>
+      <div class="rl-text">
+        Imagine you buy a new device. If it uses a custom charging port, you need a custom charger. But if it supports USB-C (a universal standard port), you can charge it using standard chargers anywhere. Dunder methods are like USB-C ports on your classes. Instead of writing custom method names like <code>device.add_together(other)</code>, you implement <code>__add__</code>, enabling standard Python syntax: <code>device + other</code>!
+      </div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">02</span> String Representations: __str__ vs __repr__</h2>
+    <p class="text-block">
+      By default, printing a custom object outputs a useless memory address: <code>&lt;__main__.Vector object at 0x000001&gt;</code>. To fix this, Python provides two distinct string representation methods:
+    </p>
+    <ul>
+      <li><strong><code>__str__(self)</code>:</strong> Returns a clean, readable string intended for end-users (triggered by <code>print()</code> and <code>str()</code>).</li>
+      <li><strong><code>__repr__(self)</code>:</strong> Returns an unambiguous, detailed developer-focused string used for debugging and logging (triggered by typing the object in a REPL or <code>repr()</code>). Ideally, it should look like the Python code used to create the object.</li>
+    </ul>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">string_representations.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Book</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">title</span>, <span class="var_">author</span>):
+        <span class="var_">self</span>.title <span class="op">=</span> <span class="var_">title</span>
+        <span class="var_">self</span>.author <span class="op">=</span> <span class="var_">author</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="var_">self</span>):
+        <span class="kw">return</span> <span class="st">f"'{self.title}' by {self.author}"</span>
+
+    <span class="kw">def</span> <span class="fn">__repr__</span>(<span class="var_">self</span>):
+        <span class="kw">return</span> <span class="st">f"Book('{self.title}', '{self.author}')"</span>
+
+<span class="var_">b</span> <span class="op">=</span> <span class="fn">Book</span>(<span class="st">"1984"</span>, <span class="st">"George Orwell"</span>)
+
+<span class="bi">print</span>(<span class="var_">b</span>)         <span class="cm"># Calls __str__ -> Output: '1984' by George Orwell</span>
+<span class="bi">print</span>(<span class="bi">repr</span>(<span class="var_">b</span>))   <span class="cm"># Calls __repr__ -> Output: Book('1984', 'George Orwell')</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">03</span> Arithmetic Operator Overloading</h2>
+    <p class="text-block">
+      Dunder methods make it easy to overload operators. Let's build a mathematical <code>Vector2D</code> class and enable addition (<code>+</code>) and scaling multiplication (<code>*</code>).
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">operator_overloading.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Vector2D</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">x</span>, <span class="var_">y</span>):
+        <span class="var_">self</span>.x <span class="op">=</span> <span class="var_">x</span>
+        <span class="var_">self</span>.y <span class="op">=</span> <span class="var_">y</span>
+
+    <span class="kw">def</span> <span class="fn">__add__</span>(<span class="var_">self</span>, <span class="var_">other</span>):
+        <span class="cm"># Enables: v1 + v2</span>
+        <span class="kw">if</span> <span class="kw">not</span> <span class="bi">isinstance</span>(<span class="var_">other</span>, <span class="fn">Vector2D</span>):
+            <span class="kw">return</span> <span class="bi">NotImplemented</span>
+        <span class="kw">return</span> <span class="fn">Vector2D</span>(<span class="var_">self</span>.x <span class="op">+</span> <span class="var_">other</span>.x, <span class="var_">self</span>.y <span class="op">+</span> <span class="var_">other</span>.y)
+
+    <span class="kw">def</span> <span class="fn">__mul__</span>(<span class="var_">self</span>, <span class="var_">scalar</span>):
+        <span class="cm"># Enables scaling: v1 * 5</span>
+        <span class="kw">return</span> <span class="fn">Vector2D</span>(<span class="var_">self</span>.x <span class="op">*</span> <span class="var_">scalar</span>, <span class="var_">self</span>.y <span class="op">*</span> <span class="var_">scalar</span>)
+
+    <span class="kw">def</span> <span class="fn">__repr__</span>(<span class="var_">self</span>):
+        <span class="kw">return</span> <span class="st">f"Vector2D({self.x}, {self.y})"</span>
+
+<span class="var_">v1</span> <span class="op">=</span> <span class="fn">Vector2D</span>(<span class="nm">2</span>, <span class="nm">4</span>)
+<span class="var_">v2</span> <span class="op">=</span> <span class="fn">Vector2D</span>(<span class="nm">3</span>, <span class="nm">1</span>)
+
+<span class="cm"># Addition using + operator</span>
+<span class="var_">v3</span> <span class="op">=</span> <span class="var_">v1</span> <span class="op">+</span> <span class="var_">v2</span>
+<span class="bi">print</span>(<span class="var_">v3</span>)  <span class="cm"># Output: Vector2D(5, 5)</span>
+
+<span class="cm"># Scaling using * operator</span>
+<span class="var_">v4</span> <span class="op">=</span> <span class="var_">v1</span> <span class="op">*</span> <span class="nm">3</span>
+<span class="bi">print</span>(<span class="var_">v4</span>)  <span class="cm"># Output: Vector2D(6, 12)</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">04</span> Simulating Collection Behaviors</h2>
+    <p class="text-block">
+      By implementing dunder methods like <code>__len__</code>, <code>__getitem__</code>, and <code>__contains__</code>, we can make our custom classes behave exactly like Python's built-in lists or dictionaries.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">custom_collections.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">class</span> <span class="fn">Team</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var_">self</span>, <span class="var_">name</span>, <span class="var_">players</span>):
+        <span class="var_">self</span>.name <span class="op">=</span> <span class="var_">name</span>
+        <span class="var_">self</span>.players <span class="op">=</span> <span class="var_">players</span>
+
+    <span class="kw">def</span> <span class="fn">__len__</span>(<span class="var_">self</span>):
+        <span class="cm"># Enables: len(team)</span>
+        <span class="kw">return</span> <span class="bi">len</span>(<span class="var_">self</span>.players)
+
+    <span class="kw">def</span> <span class="fn">__getitem__</span>(<span class="var_">self</span>, <span class="var_">index</span>):
+        <span class="cm"># Enables indexing and slicing: team[0]</span>
+        <span class="kw">return</span> <span class="var_">self</span>.players[<span class="var_">index</span>]
+
+    <span class="kw">def</span> <span class="fn">__contains__</span>(<span class="var_">self</span>, <span class="var_">player_name</span>):
+        <span class="cm"># Enables membership checks: "Alice" in team</span>
+        <span class="kw">return</span> <span class="var_">player_name</span> <span class="kw">in</span> <span class="var_">self</span>.players
+
+<span class="var_">barcelona</span> <span class="op">=</span> <span class="fn">Team</span>(<span class="st">"FC Barcelona"</span>, [<span class="st">"Messi"</span>, <span class="st">"Iniesta"</span>, <span class="st">"Xavi"</span>])
+
+<span class="cm"># 1. Getting length</span>
+<span class="bi">print</span>(<span class="bi">len</span>(<span class="var_">barcelona</span>))  <span class="cm"># Output: 3</span>
+
+<span class="cm"># 2. Accessing by index</span>
+<span class="bi">print</span>(<span class="var_">barcelona</span>[<span class="nm">0</span>])  <span class="cm"># Output: Messi</span>
+
+<span class="cm"># 3. Membership verification</span>
+<span class="bi">print</span>(<span class="st">"Messi"</span> <span class="kw">in</span> <span class="var_">barcelona</span>)    <span class="cm"># Output: True</span>
+<span class="bi">print</span>(<span class="st">"Ronaldo"</span> <span class="kw">in</span> <span class="var_">barcelona</span>)  <span class="cm"># Output: False</span></pre>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">05</span> Essential Dunder Reference Table</h2>
+    <p class="text-block">
+      Here is a cheat sheet of the most common and powerful special methods you will implement in standard Python production codebases.
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Dunder Method</th>
+            <th>Trigger Syntax</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Lifecycle</strong></td>
+            <td><code>__init__(self, ...)</code></td>
+            <td><code>x = ClassName()</code></td>
+            <td>Initializes instance state.</td>
+          </tr>
+          <tr>
+            <td><strong>Lifecycle</strong></td>
+            <td><code>__new__(cls, ...)</code></td>
+            <td><code>x = ClassName()</code></td>
+            <td>Controls raw creation of the object (factory/singleton setups).</td>
+          </tr>
+          <tr>
+            <td><strong>Comparison</strong></td>
+            <td><code>__eq__(self, other)</code></td>
+            <td><code>x == y</code></td>
+            <td>Custom equality matching rules.</td>
+          </tr>
+          <tr>
+            <td><strong>Comparison</strong></td>
+            <td><code>__lt__(self, other)</code></td>
+            <td><code>x &lt; y</code></td>
+            <td>Custom "less-than" comparison (helps with sorting).</td>
+          </tr>
+          <tr>
+            <td><strong>Type Casting</strong></td>
+            <td><code>__int__(self)</code> / <code>__bool__(self)</code></td>
+            <td><code>int(x)</code> / <code>bool(x)</code></td>
+            <td>Enables clean conversion to native Python types.</td>
+          </tr>
+          <tr>
+            <td><strong>Execution</strong></td>
+            <td><code>__call__(self, ...)</code></td>
+            <td><code>x()</code></td>
+            <td>Allows you to call an object exactly like a standard function.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <h2 class="section-title"><span class="sec-num">06</span> Context Managers & Callable Classes</h2>
+    <p class="text-block">
+      Let's look at a advanced real-world case: implementing <code>__enter__</code> and <code>__exit__</code> to create custom <strong>Context Managers</strong> (for resources cleanup) and <code>__call__</code> to make class instances executable.
+    </p>
+
+    <div class="cb">
+      <div class="cb-head">
+        <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <span class="cb-title">advanced_dunders.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+      </div>
+      <pre><span class="kw">import</span> <span class="fn">time</span>
+
+<span class="kw">class</span> <span class="fn">Timer</span>:
+    <span class="cm"># 1. Custom Context Manager Dunders</span>
+    <span class="kw">def</span> <span class="fn">__enter__</span>(<span class="var_">self</span>):
+        <span class="var_">self</span>.start_time <span class="op">=</span> <span class="fn">time</span>.time()
+        <span class="kw">return</span> <span class="var_">self</span>
+
+    <span class="kw">def</span> <span class="fn">__exit__</span>(<span class="var_">self</span>, <span class="var_">exc_type</span>, <span class="var_">exc_val</span>, <span class="var_">exc_tb</span>):
+        <span class="var_">self</span>.end_time <span class="op">=</span> <span class="fn">time</span>.time()
+        <span class="bi">print</span>(<span class="st">f"⏱️ Block took {self.end_time - self.start_time:.4f} seconds to run."</span>)
+
+    <span class="cm"># 2. Callable Dunder</span>
+    <span class="kw">def</span> <span class="fn">__call__</span>(<span class="var_">self</span>, <span class="var_">label</span>):
+        <span class="bi">print</span>(<span class="st">f"Timer label: {label}"</span>)
+
+<span class="cm"># Using Timer as a Context Manager</span>
+<span class="kw">with</span> <span class="fn">Timer</span>() <span class="kw">as</span> <span class="var_">t</span>:
+    <span class="cm"># Inside the block</span>
+    <span class="var_">t</span>(<span class="st">"Heavy Math"</span>)  <span class="cm"># Calling the object! Triggers __call__</span>
+    <span class="bi">sum</span>(<span class="var_">i</span><span class="op">**</span><span class="nm">2</span> <span class="kw">for</span> <span class="var_">i</span> <span class="kw">in</span> <span class="bi">range</span>(<span class="nm">1000000</span>))
+
+<span class="cm"># Output:</span>
+<span class="cm"># Timer label: Heavy Math</span>
+<span class="cm"># ⏱️ Block took 0.0821 seconds to run.</span></pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amit Dhakad AI · Master Python Series</p>
+    <p>© 2026 Ultimate OOP Mastery</p>
+  </footer>
+</div>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.cb').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `
+        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Copied!
+      `;
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
